@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--dataset",
-                    default="MIMIC",
+                    default="eICU",
                     help="Insert the dataset to work with")
 
     return parser.parse_args()
@@ -48,7 +48,7 @@ def run_query(sql_query_path, destination_path):
     df.to_csv(destination_path)
 
     return df
-    
+
 
 if __name__ == '__main__':
 

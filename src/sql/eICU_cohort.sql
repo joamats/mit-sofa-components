@@ -1,0 +1,131 @@
+WITH
+  sofa24 AS (
+    SELECT patientunitstayid AS s24_id,
+            sofa_resp AS resp_24,
+            sofa_gcs AS cns_24,
+            sofa_circ AS cv_24,
+            sofa_liver AS liver_24,
+            sofa_hematology AS coag_24,
+            sofa_renal AS renal_24
+    FROM `icu_elos.itu_sofa_day`
+    WHERE day = 1
+)
+, sofa168 AS (
+    SELECT patientunitstayid AS s168_id,
+           sofa_resp AS resp_168,
+           sofa_gcs AS cns_168,
+           sofa_circ AS cv_168,
+           sofa_liver AS liver_168,
+           sofa_hematology AS coag_168,
+           sofa_renal AS renal_168
+    FROM `icu_elos.itu_sofa_day`
+    WHERE day = 7
+)
+, vent24 AS (
+    SELECT patientunitstayid AS mv24_id
+    FROM `icu_elos.invasive`
+    WHERE starttime < 24 * 60
+    AND endtime > 24 * 60
+)
+, vent168 AS (
+    SELECT patientunitstayid AS mv168_id
+    FROM `icu_elos.invasive`
+    WHERE starttime < 168 * 60
+    AND endtime > 168 * 60
+)
+, patient as (
+    SELECT patientunitstayid AS p_id,
+           hospitaldischargelocation,
+           unitdischargestatus,
+           hospitaldischargestatus
+    FROM `physionet-data.eicu_crd.patient`
+)
+, cabg_adm AS (
+    SELECT distinct patientunitstayid AS cabg_id
+    FROM `physionet-data.eicu_crd.patient`
+    WHERE apacheadmissiondx IN (
+                                "CABG alone, coronary artery bypass grafting",
+                                "CABG redo with valve repair/replacement",
+                                "CABG with mitral valve replacement",
+                                "CABG alone, redo",
+                                "CABG with double valve repair/replacement",
+                                "CABG with aortic valve replacement",
+                                "CABG with other operation",
+                                "CABG with mitral valve repair",
+                                "CABG redo with other operation",
+                                "CABG with pulmonic or tricuspid valve repair or replacement ONLY.",
+                                "CABG, minimally invasive; mid-CABG"
+                                )
+)
+, cirrhosis AS (
+    SELECT DISTINCT *
+    FROM (
+        SELECT distinct patientunitstayid AS cirrhosis_id
+        FROM `physionet-data.eicu_crd.pasthistory` 
+        WHERE pasthistorypath
+        IN ("notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/jaundice",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/UGI bleeding",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/encephalopathy",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/ascites",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/varices",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/biopsy proven",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/clinical diagnosis",
+            "notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/coma"
+        )
+    UNION ALL
+    SELECT distinct patientunitstayid
+    FROM `physionet-data.eicu_crd.apachepredvar`
+    WHERE cirrhosis = 1
+
+    UNION ALL
+    SELECT distinct patientunitstayid
+    FROM `physionet-data.eicu_crd.diagnosis`
+    WHERE diagnosisstring
+    IN ("gastrointestinal|hepatic disease|hepatic dysfunction|with cirrhosis",
+        "gastrointestinal|hepatic disease|hepatic dysfunction|with cirrhosis|biliary",
+        "gastrointestinal|hepatic disease|hepatic dysfunction|with cirrhosis|alcoholic",
+        "gastrointestinal|hepatic disease|hepatic dysfunction|with cirrhosis|cryptogenic"
+       )
+    )
+)
+, esrd as (
+    SELECT distinct patientunitstayid as esrd_id
+    FROM (
+        SELECT distinct patientunitstayid
+        FROM `physionet-data.eicu_crd.pasthistory`
+        WHERE pasthistorypath
+        IN ("notes/Progress Notes/Past History/Organ Systems/Renal  (R)/Renal Failure/renal failure - hemodialysis")
+        UNION ALL
+        SELECT distinct patientunitstayid
+        FROM `physionet-data.eicu_crd.diagnosis` 
+        WHERE diagnosisstring
+        IN ("renal|disorder of kidney|ESRD (end stage renal disease)")
+    )
+)
+ 
+SELECT distinct *
+FROM `physionet-data.eicu_crd_derived.icustay_detail` AS cohort 
+
+LEFT JOIN sofa24
+ON cohort.patientunitstayid = sofa24.s24_id
+
+LEFT JOIN sofa168
+ON cohort.patientunitstayid = sofa168.s168_id
+
+LEFT JOIN vent24
+ON cohort.patientunitstayid = vent24.mv24_id
+
+LEFT JOIN vent168
+ON cohort.patientunitstayid = vent168.mv168_id
+
+LEFT JOIN patient
+ON cohort.patientunitstayid = patient.p_id
+
+LEFT JOIN cabg_adm
+ON cohort.patientunitstayid = cabg_adm.cabg_id
+
+LEFT JOIN cirrhosis
+ON cohort.patientunitstayid = cirrhosis.cirrhosis_id
+
+LEFT JOIN esrd
+ON cohort.patientunitstayid = esrd.esrd_id

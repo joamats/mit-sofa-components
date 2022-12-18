@@ -1,5 +1,5 @@
 library(table1)
-
+library(flextable)
 
 pvalue <- function(x, ...) {
   # Construct vectors of data y, and groups (strata) g
@@ -17,11 +17,12 @@ pvalue <- function(x, ...) {
   c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
 }
 
+df <- read_csv("data/cohorts/eICU_24.csv", show_col_types = FALSE)
+
 df$gender <- factor(df$gender, level=c('Male',
                                        'Female'))
 
-df$icudeath <- factor(df$icudeath, levels=c("Survived or discharged to other locations within 72 hours of ICU discharge",
-                                            "ICU death or Discharged to Hospice within 72 hours of ICU discharge"))
+df$icudeath <- factor(df$icudeath, levels=c("Survived", "Died"))
                                             
 df$ethnicity <- factor(df$ethnicity, levels=c("HISPANIC/LATINO",
                                               "BLACK/AFRICAN AMERICAN",
@@ -62,6 +63,10 @@ label(df$coag_24) <- "SOFA - Coagulation at 24 hours"
 label(df$renal_24) <- "SOFA - Renal at 24 hours"
 label(df$liver_24) <- "SOFA - Liver at 24 hours"
 
+label(df1$gender) <- "Gender"
+label(df1$age) <- "Age"
+label(df1$ethnicity) <- "Ethnicity"
+
 label(df1$resp_168) <- "SOFA - Respiration at 168 hours"
 label(df1$cns_168) <- "SOFA-CNS and MV at 168 hours"
 label(df1$cv_168) <- "SOFA - Cardiovascular at 168 hours"
@@ -79,7 +84,7 @@ t1 <- table1(~ gender + age + ethnicity + cns_24 + resp_24 + coag_24 + liver_24 
              topclass="Rtable1-grid Rtable1-shade Rtable1-times"
             )
 
-t1flex(t1) %>% save_as_docx(path="results/table1_eICU_24.docx")
+t1flex(t1) %>% save_as_docx(path="results/table1/eICU_24.docx")
 
 
 t1 <- table1(~ gender + age + ethnicity + cns_168 + resp_168 + coag_168 + liver_168 + cv_168  + renal_168 | icudeath,
@@ -90,4 +95,4 @@ t1 <- table1(~ gender + age + ethnicity + cns_168 + resp_168 + coag_168 + liver_
              topclass="Rtable1-grid Rtable1-shade Rtable1-times"
             )
 
-t1flex(t1) %>% save_as_docx(path="results/table1_eICU_128.docx")
+t1flex(t1) %>% save_as_docx(path="results/table1/eICU_128.docx")

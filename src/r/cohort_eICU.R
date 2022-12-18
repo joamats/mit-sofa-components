@@ -56,8 +56,11 @@ df$icudeath[df$unitdischargestatus == "Expired"] <- 1
 df$icudeath[df$hospitaldischargestatus == "Expired" & (df$hospitaldischargeoffset - df$unitdischargeoffset < 4320)] <-1
 df$icudeath[df$hospitaldischargestatus == "Expired" & (df$hospitaldischargeoffset < df$unitdischargeoffset)] <- 1
 
-df$icudeath[df$icudeath == 0] <- "Survived or discharged to other locations within 72 hours of ICU discharge"
-df$icudeath[df$icudeath == 1] <- "ICU death or Discharged to Hospice within 72 hours of ICU discharge"
+# 0 = "Survived or discharged to other locations within 72 hours of ICU discharge"
+# 1 = "ICU death or Discharged to Hospice within 72 hours of ICU discharge"
+
+df$icudeath[df$icudeath == 0] <- "Survived"
+df$icudeath[df$icudeath == 1] <- "Died"
 
 # Encode ethnicity
 df$ethnicity[df$ethnicity == "African American"] <- "BLACK/AFRICAN AMERICAN"

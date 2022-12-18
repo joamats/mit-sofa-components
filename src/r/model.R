@@ -74,7 +74,7 @@ for (c in cohorts) {
             df <- read.csv(paste0("data/cohorts/", c, "_", t, ".csv"))
             df <- encode_data(df, c, t, s)
             m_OR <- run_glm(df, t)
-            write.csv(m_OR, paste0("results/", c, "_", t, "_", s, ".csv"))
+            write.csv(m_OR, paste0("results/glm/", c, "_", t, "_", s, ".csv"))
         }
     }
 }

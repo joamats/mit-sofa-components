@@ -71,5 +71,5 @@ And you'll get the resulting odds ratios both for MIMIC and eICU, for both timep
 
 ## How to contribute?
 We are actively working on this project.
-Feel free to raise questions opening an issue, to fork this project and submit pull requests!
-And here's my email if you prefer: jcmatos@mit.edu
+Feel free to raise questions opening an issue, send an email to jcmatos@mit.edu or to fork this project and submit a pull request!
+This project was done by Yugang Jia.

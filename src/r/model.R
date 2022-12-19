@@ -40,7 +40,11 @@ encode_data <- function (df, cohort, time, sens_anl) {
 
     } # else we just keep df as is
 
-    return (df[, append(comps, c("m_age","gender", "ethnicity", "icudeath"))])
+    ready_df <- df[, append(comps, c("m_age","gender", "ethnicity", "icudeath"))]
+
+    write.csv(ready_df, 'data/d.csv')
+
+    return (ready_df)
 
 }
 
@@ -64,7 +68,7 @@ run_glm <- function(df, time) {
 
 }
 
-cohorts <- c("MIMIC") #"MIMIC"
+cohorts <- c("MIMIC", "eICU")
 times <- c("24","168")
 sens_analys <- c("all", "no_cirrhosis", "no_esrd")
 

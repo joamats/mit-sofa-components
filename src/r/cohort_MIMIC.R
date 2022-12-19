@@ -38,10 +38,46 @@ print(paste0("Final Number of Patients (24h): ", nrow(final_df)))
 
 
 final_df$ethnicity <- final_df$race
-final_df$ethnicity[final_df$race == 'OTHER' 
-                      | final_df$race == 'UNABLE TO OBTAIN'
-                      | final_df$race == 'UNKNOWN'
-                      | final_df$race == 'AMERICAN INDIAN/ALASKA NATIVE'] <- "OTHER"
+final_df$ethnicity[ final_df$race == 'OTHER' 
+                  | final_df$race == 'UNABLE TO OBTAIN'
+                  | final_df$race == 'UNKNOWN'
+                  | final_df$race == 'MULTIPLE RACE/ETHNICITY'
+                  | final_df$race == 'PATIENT DECLINED TO ANSWER'
+                  | final_df$race == 'AMERICAN INDIAN/ALASKA NATIVE'
+                  | final_df$race == 'NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER'] <- "OTHER" #7
+
+final_df$ethnicity[ final_df$race == 'HISPANIC OR LATINO' 
+                  | final_df$race == 'HISPANIC/LATINO - GUATEMALAN'
+                  | final_df$race == 'HISPANIC/LATINO - PUERTO RICAN'
+                  | final_df$race == 'HISPANIC/LATINO - DOMINICAN'
+                  | final_df$race == 'HISPANIC/LATINO - MEXICAN'
+                  | final_df$race == 'HISPANIC/LATINO - SALVADORAN'
+                  | final_df$race == 'HISPANIC/LATINO - COLUMBIAN'
+                  | final_df$race == 'HISPANIC/LATINO - HONDURAN'
+                  | final_df$race == 'HISPANIC/LATINO - CENTRAL AMERICAN'
+                  | final_df$race == 'HISPANIC/LATINO - CUBAN'
+                  | final_df$race == 'SOUTH AMERICAN'] <- "HISPANIC" #11
+
+final_df$ethnicity[ final_df$race == 'ASIAN' 
+                  | final_df$race == 'ASIAN - KOREAN'
+                  | final_df$race == 'ASIAN - SOUTH EAST ASIAN'
+                  | final_df$race == 'ASIAN - ASIAN INDIAN'
+                  | final_df$race == 'ASIAN - CHINESE'] <- "ASIAN" #4
+
+final_df$ethnicity[ final_df$race == 'BLACK/AFRICAN AMERICAN' 
+                  | final_df$race == 'BLACK/CARIBBEAN ISLAND'
+                  | final_df$race == 'BLACK/AFRICAN'
+                  | final_df$race == 'BLACK/CAPE VERDEAN'] <- "BLACK" #4
+
+final_df$ethnicity[ final_df$race == 'WHITE' 
+                  | final_df$race == 'WHITE - OTHER EUROPEAN'
+                  | final_df$race == 'WHITE - EASTERN EUROPEAN'
+                  | final_df$race == 'WHITE - BRAZILIAN'
+                  | final_df$race == 'WHITE - RUSSIAN'
+                  | final_df$race == 'PORTUGUESE'] <- "WHITE" #6
+
+
+
 
 final_df$gender[final_df$gender == "M"] <- "Male"
 final_df$gender[final_df$gender == "F"] <- "Female"

@@ -63,10 +63,10 @@ df$icudeath[df$icudeath == 0] <- "Survived"
 df$icudeath[df$icudeath == 1] <- "Died"
 
 # Encode ethnicity
-df$ethnicity[df$ethnicity == "African American"] <- "BLACK/AFRICAN AMERICAN"
+df$ethnicity[df$ethnicity == "African American"] <- "BLACK"
 df$ethnicity[df$ethnicity == "Asian"] <- "ASIAN"
 df$ethnicity[df$ethnicity == "Caucasian"] <- "WHITE"
-df$ethnicity[df$ethnicity == "Hispanic"] <- "HISPANIC/LATINO"
+df$ethnicity[df$ethnicity == "Hispanic"] <- "HISPANIC"
 df$ethnicity[df$ethnicity == "Native American" | df$ethnicity == "Other/Unknown" | is.na(df$ethnicity)] <- "OTHER"
 
 # Encode gender
@@ -74,7 +74,7 @@ df$gender[df$gender == 0 ] <- "Female"
 df$gender[df$gender == 1 ] <- "Male"
 
 # Encode age
-df$age[df$age==">89"] <- 90
+df$age[df$age == ">89"] <- 90
 
 # Encode SOFA components
 abnormalvalue = c(1,2,3,4)

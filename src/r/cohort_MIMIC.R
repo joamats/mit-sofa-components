@@ -5,6 +5,7 @@ rawdata<- read_csv("data/MIMIC_data.csv", show_col_types = FALSE)
 df1 <- rawdata
 
 df1$age <- df1$admission_age
+df1$esrd_id <- df1$ESRD_id
 
 print(paste0("Initial Number of Patients: ", nrow(rawdata)))
 
@@ -60,22 +61,24 @@ final_df$icudeath[(!is.na(final_df$combinedeathtime)) & ( difftime(final_df$comb
 final_df$icudeath[final_df$icudeath == 0] <- "Survived"
 final_df$icudeath[final_df$icudeath == 1] <- "Died"
 
-final_df$vent_24[final_df$vent_24 == 'InvasiveVent'
+final_df[, 'newvent24'] <- 5
+final_df$newvent24[final_df$vent_24 == 'InvasiveVent'
                    | final_df$vent_24 == 'HFNC'
                    | final_df$vent_24 == 'Tracheostomy'
                    | final_df$vent_24 == 'NonInvasiveVent'] <- 1
-final_df$vent_24[is.na(final_df$vent_24) ]<- 0
-final_df$vent_24[final_df$vent_24 == 'SupplementalOxygen'] <- 0     
+final_df$newvent24[is.na(final_df$vent_24) ]<- 0
+final_df$newvent24[final_df$vent_24 == 'SupplementalOxygen'] <- 0
 
-final_df$cns_24[final_df$vent_24 == "InvasiveVent"] <- "Mechanical Ventilation (MV)"
-final_df$cns_24[final_df$vent_24 != "InvasiveVent" & final_df$cns_24 == 0] <- "Normal"
+
+final_df$cns_24[final_df$vent_24 == 'InvasiveVent'] <- "Mechanical Ventilation (MV)"
+final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 == 0] <- "Normal"
 final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 == 0] <- "Normal"
-final_df$cns_24[final_df$vent_24 != "InvasiveVent" & final_df$cns_24 %in%  c(1,2,3,4)] <- "Abnormal"
+final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 %in%  c(1,2,3,4)] <- "Abnormal"
 final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 %in%  c(1,2,3,4)] <- "Abnormal"
 
-final_df$resp_24[final_df$vent_24 == 1] <- "Abnormal"
-final_df$resp_24[final_df$vent_24 == 0 & final_df$resp_24 == 0] <- "Normal"
-final_df$resp_24[final_df$vent_24 == 0 & final_df$resp_24 %in%  c(1,2,3,4)] <- "Abnormal"
+final_df$resp_24[final_df$newvent24 == 1] <- "Abnormal"
+final_df$resp_24[final_df$newvent24 == 0 & final_df$resp_24 == 0] <- "Normal"
+final_df$resp_24[final_df$newvent24 == 0 & final_df$resp_24 %in%  c(1,2,3,4)] <- "Abnormal"
 
 final_df$coag_24[final_df$coag_24 == 0] <- "Normal"
 final_df$coag_24[final_df$coag_24 %in%  c(1,2,3,4)] <- "Abnormal"
@@ -113,6 +116,17 @@ final_d <- df[(df$situation168=="Alive"),]
 
 print(paste0("Patients removed that did not spend 7 days (died or were discharged): ", nrow(df) - nrow(final_d)))
 
+final_df <- final_d[(!is.na(final_d$resp_168)),]
+print(paste0("Patients removed with missing resp info: ", nrow(final_d) - nrow(final_df)))
+
+final_df[, 'newvent168'] <- 5
+final_df$newvent168[final_df$vent_168 == 'InvasiveVent'
+                    | final_df$vent_168 == 'HFNC'
+                    | final_df$vent_168 == 'Tracheostomy'
+                    | final_df$vent_168 == 'NonInvasiveVent'] <- 1
+final_df$newvent168[is.na(final_df$vent_168) ] <- 0
+final_df$newvent168[final_df$vent_168 == 'SupplementalOxygen'] <- 0  
+
 final_d$vent_168[final_d$vent_168 == 'InvasiveVent'
                     | final_d$vent_168 == 'HFNC'
                     | final_d$vent_168 == 'Tracheostomy'
@@ -120,12 +134,10 @@ final_d$vent_168[final_d$vent_168 == 'InvasiveVent'
 final_d$vent_168[is.na(final_d$vent_168) ] <- 0
 final_d$vent_168[final_d$vent_168 == 'SupplementalOxygen'] <- 0   
 
-final_df <- final_d[(!is.na(final_d$resp_168)),]
-print(paste0("Patients removed with missing resp info: ", nrow(final_d) - nrow(final_df)))
+final_df$resp_168[final_df$newvent168 == 1] <- "Abnormal"
+final_df$resp_168[final_df$newvent168 == 0 & final_df$resp_168 == 0] <- "Normal"
+final_df$resp_168[final_df$newvent168 == 0 & final_df$resp_168 %in% c(1,2,3,4)] <- "Abnormal"
 
-final_df$resp_168[final_df$vent_168 == 1] <- "Abnormal"
-final_df$resp_168[final_df$vent_168 == 0 & final_df$resp_168 == 0] <- "Normal"
-final_df$resp_168[final_df$vent_168 == 0 & final_df$resp_168 %in%  c(1,2,3,4)] <- "Abnormal"
 
 final_df$coag_168[ final_df$coag_168 == 0] <- "Normal"
 final_df$coag_168[ final_df$coag_168 %in%  c(1,2,3,4)] <- "Abnormal"

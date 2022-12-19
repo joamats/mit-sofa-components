@@ -65,7 +65,7 @@ run_glm <- function(df, time) {
 }
 
 cohorts <- c("MIMIC") #"MIMIC"
-times <- c("24", "168")
+times <- c("24","168")
 sens_analys <- c("all", "no_cirrhosis", "no_esrd")
 
 for (c in cohorts) {

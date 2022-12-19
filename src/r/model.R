@@ -4,7 +4,8 @@ encode_data <- function (df, cohort, time, sens_anl) {
     df$m_age <-df$age / 10
 
     df <- within(df, ethnicity  <- relevel(factor(ethnicity),   ref = "WHITE"))
-    df <- within(df, icudeath   <- relevel(factor(icudeath),    ref = "Survived or discharged to other locations within 72 hours of ICU discharge"))
+    df <- within(df, gender     <- relevel(factor(gender),      ref = "Male"))
+    df <- within(df, icudeath   <- relevel(factor(icudeath),    ref = "Survived"))
 
     if (time == "24") {
 
@@ -57,13 +58,13 @@ run_glm <- function(df, time) {
     }
 
     summary(m)
-    m_OR <- exp(cbind(OR = coef(m1), confint(m1)))
+    m_OR <- exp(cbind(OR = coef(m), confint(m)))
 
     return (m_OR)
 
 }
 
-cohorts <- c("eICU") #"MIMIC"
+cohorts <- c("MIMIC") #"MIMIC"
 times <- c("24", "168")
 sens_analys <- c("all", "no_cirrhosis", "no_esrd")
 

@@ -103,6 +103,35 @@ WITH
     )
 )
  
+, charlson as (
+    SELECT patientunitstayid as charlson_id, final_charlson_score as charlson
+    FROM `icu_elos.charlson_comorbidity_index`
+    )
+
+, sepsis3 as (
+    SELECT patientunitstayid as sepsis_id, 
+    CASE 
+    WHEN patientunitstayid IS NOT NULL THEN "TRUE"
+    ELSE NULL
+    END AS sepsis3
+    FROM `icu_elos.sepsis_adult_eicu`
+    )
+
+, first_service as (
+SELECT patientunitstayid as first_service_id, specialty AS first_service
+    FROM 
+    (
+        SELECT patientunitstayid, managingphysician, careprovidersaveoffset, specialty,
+        ROW_NUMBER() OVER(PARTITION BY patientunitstayid ORDER BY careprovidersaveoffset ASC) AS service_seq
+        FROM `physionet-data.eicu_crd.careplancareprovider`
+        WHERE specialty NOT IN 
+        ('nurse','nurse practitioner', 'social work', 'ethics')
+    )
+    WHERE managingphysician = 'Managing'
+    AND service_seq = 1
+    AND careprovidersaveoffset BETWEEN -(60*6) AND (24*60) -- analogous to SOFA rule, pick -6 and +24h from admission to unit
+    )
+
 SELECT distinct *
 FROM `physionet-data.eicu_crd_derived.icustay_detail` AS cohort 
 
@@ -129,3 +158,12 @@ ON cohort.patientunitstayid = cirrhosis.cirrhosis_id
 
 LEFT JOIN esrd
 ON cohort.patientunitstayid = esrd.esrd_id
+
+LEFT JOIN charlson
+ON cohort.patientunitstayid = charlson.charlson_id
+
+LEFT JOIN sepsis3
+ON cohort.patientunitstayid = sepsis3.sepsis_id
+
+LEFT JOIN first_service
+ON cohort.patientunitstayid = first_service.first_service_id

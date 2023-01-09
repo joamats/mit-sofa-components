@@ -120,6 +120,21 @@ WITH
     FROM `physionet-data.mimiciv_hosp.admissions`
 )
 
+, charlson AS (
+    SELECT hadm_id, charlson_comorbidity_index as charlson
+    FROM `physionet-data.mimiciv_derived.charlson`
+)
+
+, first_service AS (
+    SELECT hadm_id, curr_service AS first_service
+        FROM (
+        SELECT subject_id, hadm_id, curr_service, transfertime, 
+        ROW_NUMBER() OVER(PARTITION BY subject_id, hadm_id ORDER BY transfertime ASC) AS service_seq
+        FROM `physionet-data.mimiciv_hosp.services`
+        )
+    WHERE service_seq = 1
+    )
+
 SELECT DISTINCT *
 FROM  `physionet-data.mimiciv_derived.icustay_detail` AS cohort 
 
@@ -156,3 +171,9 @@ ON cohort.hadm_id = cirrhosis.cirrhosis_id
 
 LEFT JOIN esrd
 ON cohort.hadm_id = esrd.esrd_id
+
+LEFT JOIN charlson
+on cohort.hadm_id = charlson.hadm_id 
+
+LEFT JOIN first_service
+on cohort.hadm_id = first_service.hadm_id 

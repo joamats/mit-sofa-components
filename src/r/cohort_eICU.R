@@ -69,9 +69,24 @@ df$ethnicity[df$ethnicity == "Caucasian"] <- "WHITE"
 df$ethnicity[df$ethnicity == "Hispanic"] <- "HISPANIC"
 df$ethnicity[df$ethnicity == "Native American" | df$ethnicity == "Other/Unknown" | is.na(df$ethnicity)] <- "OTHER"
 
+# Map service typ to Medical vs. non-Medical/Surgical
+df$medical <- df$first_service
+df <- df %>% mutate(medical= ifelse(
+  medical == 'urology' 
+  | medical == 'unknown'
+  | medical == 'radiology'
+  | medical == 'other'
+  | medical == 'obstetrics/gynecology'
+  | grepl('surgery', df$medical, ignore.case = TRUE) == 1, 0, 1))
+
+
 # Encode gender
 df$gender[df$gender == 0 ] <- "Female"
 df$gender[df$gender == 1 ] <- "Male"
+
+# Encode Sepsis 3 diagnosis
+df$sepsis3[df$sepsis3 == 'TRUE'] <- "Yes"
+df$sepsis3[is.na(df$sepsis3)] <- "No"
 
 # Encode age
 df$age[df$age == ">89"] <- 90

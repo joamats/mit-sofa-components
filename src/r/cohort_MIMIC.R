@@ -36,7 +36,7 @@ print(paste0("Patients removed without cns info: ", nrow(df5) - nrow(df6)))
 final_df <- df6
 print(paste0("Final Number of Patients (24h): ", nrow(final_df)))
 
-
+# Map ethnicity
 final_df$ethnicity <- final_df$race
 final_df$ethnicity[ final_df$race == 'OTHER' 
                   | final_df$race == 'UNABLE TO OBTAIN'
@@ -77,7 +77,13 @@ final_df$ethnicity[ final_df$race == 'WHITE'
                   | final_df$race == 'PORTUGUESE'] <- "WHITE" #6
 
 
-
+# Map service typ to Medical vs. non-Medical/Surgical
+final_df$medical <- final_df$first_service
+final_df <- final_df %>% mutate(medical= ifelse(
+                    medical == 'CMED' 
+                  | medical == 'NMED'
+                  | medical == 'MED'
+                  | medical == 'OMED', 1, 0))
 
 final_df$gender[final_df$gender == "M"] <- "Male"
 final_df$gender[final_df$gender == "F"] <- "Female"
@@ -147,7 +153,7 @@ df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|d
 df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (!is.na(df$discharge_location)) & (df$discharge_location != "HOSPICE")] <-"Discharge"
 df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (is.na(df$discharge_location)) ] <-"Discharge"
 
-# Keep only the patients who were more than 7 days
+# Keep only the patients who were alive more than 7 days
 final_d <- df[(df$situation168=="Alive"),]
 
 print(paste0("Patients removed that did not spend 7 days (died or were discharged): ", nrow(df) - nrow(final_d)))

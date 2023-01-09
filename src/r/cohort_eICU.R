@@ -79,6 +79,19 @@ df <- df %>% mutate(medical= ifelse(
   | medical == 'obstetrics/gynecology'
   | grepl('surgery', df$medical, ignore.case = TRUE) == 1, 0, 1))
 
+# Encode key comorbidities
+df <- df %>% mutate(hypertension_present= ifelse(is.na(hypertension_present),0,1))
+df <- df %>% mutate(heart_failure_present= ifelse(is.na(heart_failure_present),0,1))
+df <- df %>% mutate(asthma_present= ifelse(is.na(asthma_present),0,1))
+df <- df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
+df <- df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
+
+# Encode admission code status
+df$full_therapy <- df$first_code
+df <- df %>% mutate(full_therapy= ifelse(full_therapy=="Full therapy",1,0))
+
+# Omit discharge code status
+df$last_code <- NULL
 
 # Encode gender
 df$gender[df$gender == 0 ] <- "Female"

@@ -91,6 +91,20 @@ final_df$gender[final_df$gender == "F"] <- "Female"
 final_df$sepsis3[final_df$sepsis3 == 'TRUE'] <- "Yes"
 final_df$sepsis3[is.na(final_df$sepsis3)] <- "No"
 
+# Encode key comorbidities
+final_df <- final_df %>% mutate(hypertension_present= ifelse(is.na(hypertension_present),0,1))
+final_df <- final_df %>% mutate(heart_failure_present= ifelse(is.na(heart_failure_present),0,1))
+final_df <- final_df %>% mutate(asthma_present= ifelse(is.na(asthma_present),0,1))
+final_df <- final_df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
+final_df <- final_df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
+
+# Encode admission code status
+final_df$full_therapy <- final_df$first_code
+final_df <- final_df %>% mutate(full_therapy= ifelse(full_therapy=="Full code",1,0))
+
+# Omit discharge code status
+final_df$last_code <- NULL
+
 final_df['combinedeathtime'] = final_df$deathtime
 
 final_df[,'icudeath'] <- 0

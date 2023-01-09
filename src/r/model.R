@@ -52,7 +52,8 @@ run_glm <- function(df, time) {
 
     if (time == "24") {
 
-        m <- glm(icudeath ~  m_age + gender + ethnicity + cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,
+        m <- glm(icudeath ~  m_age + gender + ethnicity + sepsis3 + medical + charlson +# regular confounders
+                            cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,   # SOFA components
             data = df, family = "binomial"(link=logit))
 
     } else if (time == "168") {

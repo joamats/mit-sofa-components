@@ -40,7 +40,7 @@ encode_data <- function (df, cohort, time, sens_anl) {
 
     } # else we just keep df as is
 
-    ready_df <- df[, append(comps, c("m_age","gender", "ethnicity", "icudeath"))]
+    ready_df <- df[, append(comps, c("m_age","gender", "ethnicity", "icudeath", "sepsis3", "medical", "charlson"))]
 
     write.csv(ready_df, 'data/d.csv')
 
@@ -52,13 +52,14 @@ run_glm <- function(df, time) {
 
     if (time == "24") {
 
-        m <- glm(icudeath ~  m_age + gender + ethnicity + sepsis3 + medical + charlson +# regular confounders
-                            cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,   # SOFA components
+        m <- glm(icudeath ~  m_age + gender + ethnicity + sepsis3 + medical + charlson + # regular confounders
+                            cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,    # SOFA components
             data = df, family = "binomial"(link=logit))
 
     } else if (time == "168") {
 
-        m <- glm(icudeath ~  m_age + gender + ethnicity + cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,
+        m <- glm(icudeath ~  m_age + gender + ethnicity + sepsis3 + medical + charlson +# regular confounders
+                            cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,   # SOFA components
             data = df, family = "binomial"(link=logit))
     }
 

@@ -97,6 +97,7 @@ final_df <- final_df %>% mutate(heart_failure_present= ifelse(is.na(heart_failur
 final_df <- final_df %>% mutate(asthma_present= ifelse(is.na(asthma_present),0,1))
 final_df <- final_df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
 final_df <- final_df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
+final_df <- final_df %>% mutate(sepsis3= ifelse(sepsis3=="Yes",1,0))
 
 # Encode admission code status
 final_df$full_therapy <- final_df$first_code

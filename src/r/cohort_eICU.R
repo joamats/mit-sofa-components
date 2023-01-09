@@ -62,6 +62,10 @@ df$icudeath[df$hospitaldischargestatus == "Expired" & (df$hospitaldischargeoffse
 df$icudeath[df$icudeath == 0] <- "Survived"
 df$icudeath[df$icudeath == 1] <- "Died"
 
+# Encode Sepsis 3 diagnosis
+df$sepsis3[df$sepsis3 == 'TRUE'] <- "Yes"
+df$sepsis3[is.na(df$sepsis3)] <- "No"
+
 # Encode ethnicity
 df$ethnicity[df$ethnicity == "African American"] <- "BLACK"
 df$ethnicity[df$ethnicity == "Asian"] <- "ASIAN"
@@ -85,6 +89,7 @@ df <- df %>% mutate(heart_failure_present= ifelse(is.na(heart_failure_present),0
 df <- df %>% mutate(asthma_present= ifelse(is.na(asthma_present),0,1))
 df <- df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
 df <- df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
+df <- df %>% mutate(sepsis3= ifelse(sepsis3=="Yes",1,0))
 
 # Encode admission code status
 df$full_therapy <- df$first_code
@@ -96,10 +101,6 @@ df$last_code <- NULL
 # Encode gender
 df$gender[df$gender == 0 ] <- "Female"
 df$gender[df$gender == 1 ] <- "Male"
-
-# Encode Sepsis 3 diagnosis
-df$sepsis3[df$sepsis3 == 'TRUE'] <- "Yes"
-df$sepsis3[is.na(df$sepsis3)] <- "No"
 
 # Encode age
 df$age[df$age == ">89"] <- 90

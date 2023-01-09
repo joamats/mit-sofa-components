@@ -167,3 +167,17 @@ ON cohort.patientunitstayid = sepsis3.sepsis_id
 
 LEFT JOIN first_service
 ON cohort.patientunitstayid = first_service.first_service_id
+
+LEFT JOIN(
+  SELECT *
+  FROM `db_name.my_eICU.pivoted_commorbidities`
+)
+AS comms
+ON cohort.patientunitstayid = comms.patientunitstayid
+
+LEFT JOIN(
+  SELECT *
+  FROM `db_name.my_eICU.pivoted_codes`
+)
+AS codes
+ON cohort.patientunitstayid = codes.patientunitstayid

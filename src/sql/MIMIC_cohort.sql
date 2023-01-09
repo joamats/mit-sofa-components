@@ -177,3 +177,19 @@ on cohort.hadm_id = charlson.hadm_id
 
 LEFT JOIN first_service
 on cohort.hadm_id = first_service.hadm_id 
+
+-- Key Commorbidities
+LEFT JOIN(
+  SELECT *
+  FROM `db_name.my_MIMIC.pivoted_commorbidities`
+)
+AS comms
+ON cohort.hadm_id = comms.hadm_id
+
+-- Full code vs. DNI/NDR
+LEFT JOIN(
+  SELECT *
+  FROM `db_name.my_MIMIC.pivoted_codes`
+)
+AS codes
+ON cohort.stay_id = codes.stay_id 

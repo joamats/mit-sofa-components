@@ -99,6 +99,10 @@ final_df <- final_df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
 final_df <- final_df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
 final_df <- final_df %>% mutate(sepsis3= ifelse(sepsis3=="Yes",1,0))
 
+# Encode cirrhosis
+final_df$cirr_present <- final_df$cirrhosis_id 
+final_df <- final_df %>% mutate(cirr_present= ifelse(is.na(cirr_present),0,1))
+
 # Encode admission code status
 final_df$full_therapy <- final_df$first_code
 final_df <- final_df %>% mutate(full_therapy= ifelse(full_therapy=="Full code",1,0))
@@ -106,9 +110,16 @@ final_df <- final_df %>% mutate(full_therapy= ifelse(full_therapy=="Full code",1
 # Omit discharge code status
 final_df$last_code <- NULL
 
+# Encode mechanical ventilation
+final_df$mv_24 <- final_df$vent_24
+final_df$mv_168 <- final_df$vent_168
+final_df <- final_df %>% mutate(mv_24= ifelse(is.na(mv_24),0,1))
+final_df <- final_df %>% mutate(mv_168= ifelse(is.na(mv_168),0,1))
+
 final_df['combinedeathtime'] = final_df$deathtime
 
 final_df[,'icudeath'] <- 0
+
 ## 72hours = 72*60*60 = 259200, use seconds for the most accurate calculation
 final_df$icudeath[(!is.na(final_df$combinedeathtime)) & ( difftime(final_df$combinedeathtime, final_df$icu_intime, units = "secs") >=0) & (difftime(final_df$icu_outtime, final_df$combinedeathtime, units = "secs") >=0 ) ] <- 1
 final_df$icudeath[(!is.na(final_df$combinedeathtime)) & ( difftime(final_df$combinedeathtime, final_df$icu_intime, units = "secs") >=0) & (difftime(final_df$combinedeathtime, final_df$icu_outtime, units = "secs") >0 ) & (difftime(final_df$combinedeathtime, final_df$icu_outtime, units = "secs") <259200 ) ] <- 1

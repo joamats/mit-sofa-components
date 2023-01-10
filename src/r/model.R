@@ -1,11 +1,13 @@
-encode_data <- function (df, cohort, time, sens_anl) {
-
+encode_data <- function (df, cohort, time) {
+#encode_data <- function (df, cohort, time, sens_anl) {
     df[,'m_age'] <- NA
     df$m_age <-df$age / 10
 
     df <- within(df, ethnicity  <- relevel(factor(ethnicity),   ref = "WHITE"))
     df <- within(df, gender     <- relevel(factor(gender),      ref = "Male"))
     df <- within(df, icudeath   <- relevel(factor(icudeath),    ref = "Survived"))
+    df <- within(df, ckd_stages <- factor(ckd_stages, levels = c(0, 1, 2, 3, 4, 5)))
+    df <- within(df, ckd_stages <- fct_collapse(ckd_stages, normal=c("0", "1", "2"), stage3="3", stage4="4", stage5="5"))
 
     if (time == "24") {
 
@@ -30,17 +32,20 @@ encode_data <- function (df, cohort, time, sens_anl) {
         comps <- c("cns_168", "coag_168", "resp_168", "cv_168", "renal_168", "liver_168")
     }
 
-    if (s == "no_cirrhosis") {
+   # if (s == "no_cirrhosis") {
 
-        df <- df[is.na(df$cirrhosis_id),]
+   #     df <- df[is.na(df$cirrhosis_id),]
 
-    } else if (s == "no_esrd") {
+   # } else if (s == "no_esrd") {
 
-        df <- df[is.na(df$esrd_id),]
+   #     df <- df[is.na(df$esrd_id),]
 
-    } # else we just keep df as is
+   # } # else we just keep df as is
 
-    ready_df <- df[, append(comps, c("m_age","gender", "ethnicity", "icudeath", "sepsis3", "medical", "charlson"))]
+    ready_df <- df[, append(comps, 
+    c("m_age","gender", "ethnicity", "icudeath", "cirr_present",
+    "sepsis3", "medical", "charlson", "mv_24", "mv_168", "ckd_stages",
+    "hypertension_present",	"heart_failure_present", "asthma_present", "copd_present"))]
 
     write.csv(ready_df, 'data/d.csv')
 
@@ -52,19 +57,21 @@ run_glm <- function(df, time) {
 
     if (time == "24") {
 
-        m <- glm(icudeath ~  m_age + gender + ethnicity + sepsis3 + medical + charlson + # regular confounders
-                            cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,    # SOFA components
+        m <- glm(icudeath ~ m_age + gender + ethnicity + sepsis3 + medical + charlson + cirr_present + # regular confounders
+                            hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages + # regular confounders
+                            mv_24 * cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,    # SOFA components
             data = df, family = "binomial"(link=logit))
 
     } else if (time == "168") {
 
-        m <- glm(icudeath ~  m_age + gender + ethnicity + sepsis3 + medical + charlson +# regular confounders
-                            cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,   # SOFA components
+        m <- glm(icudeath ~ m_age + gender + ethnicity + sepsis3 + medical + charlson + cirr_present + # regular confounders
+                            hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages + # regular confounders
+                            mv_168 * cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,   # SOFA components
             data = df, family = "binomial"(link=logit))
     }
 
     summary(m)
-    m_OR <- exp(cbind(OR = coef(m), confint(m)))
+    m_OR <- exp(cbind(OR = coef(m), confint(m), N = log(nobs(m)) ))
 
     return (m_OR)
 
@@ -72,16 +79,18 @@ run_glm <- function(df, time) {
 
 cohorts <- c("MIMIC", "eICU")
 times <- c("24","168")
-sens_analys <- c("all", "no_cirrhosis", "no_esrd")
+#sens_analys <- c("all", "no_cirrhosis", "no_esrd")
 
 for (c in cohorts) {
     for (t in times) {
-        for (s in sens_analys) {
+       # for (s in sens_analys) {
 
             df <- read.csv(paste0("data/cohorts/", c, "_", t, ".csv"))
-            df <- encode_data(df, c, t, s)
+            df <- encode_data(df, c, t)
+            #df <- encode_data(df, c, t, s)
             m_OR <- run_glm(df, t)
-            write.csv(m_OR, paste0("results/glm/", c, "_", t, "_", s, ".csv"))
-        }
+            write.csv(m_OR, paste0("results/glm/", c, "_", t, ".csv"))
+            #write.csv(m_OR, paste0("results/glm/", c, "_", t, "_", s, ".csv"))
+       # }
     }
 }

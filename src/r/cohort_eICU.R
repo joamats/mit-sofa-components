@@ -91,6 +91,10 @@ df <- df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
 df <- df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
 df <- df %>% mutate(sepsis3= ifelse(sepsis3=="Yes",1,0))
 
+# Encode cirrhosis
+df$cirr_present <- df$cirrhosis_id 
+df <- df %>% mutate(cirr_present= ifelse(is.na(cirr_present),0,1))
+
 # Encode admission code status
 df$full_therapy <- df$first_code
 df <- df %>% mutate(full_therapy= ifelse(full_therapy=="Full therapy",1,0))
@@ -101,6 +105,12 @@ df$last_code <- NULL
 # Encode gender
 df$gender[df$gender == 0 ] <- "Female"
 df$gender[df$gender == 1 ] <- "Male"
+
+# Encode mechanical ventilation
+df$mv_24 <- df$mv24_id
+df$mv_168 <- df$mv168_id
+df <- df %>% mutate(mv_24= ifelse(is.na(mv_24),0,1))
+df <- df %>% mutate(mv_168= ifelse(is.na(mv_168),0,1))
 
 # Encode age
 df$age[df$age == ">89"] <- 90

@@ -110,25 +110,20 @@ final_df <- final_df %>% mutate(full_therapy= ifelse(full_therapy=="Full code",1
 # Omit discharge code status
 final_df$last_code <- NULL
 
-# Encode mechanical ventilation
-final_df$mv_24 <- final_df$vent_24
-final_df$mv_168 <- final_df$vent_168
-final_df <- final_df %>% mutate(mv_24= ifelse(is.na(mv_24),0,1))
-final_df <- final_df %>% mutate(mv_168= ifelse(is.na(mv_168),0,1))
-
 final_df['combinedeathtime'] = final_df$deathtime
 
 final_df[,'icudeath'] <- 0
 
 ## 72hours = 72*60*60 = 259200, use seconds for the most accurate calculation
-final_df$icudeath[(!is.na(final_df$combinedeathtime)) & ( difftime(final_df$combinedeathtime, final_df$icu_intime, units = "secs") >=0) & (difftime(final_df$icu_outtime, final_df$combinedeathtime, units = "secs") >=0 ) ] <- 1
-final_df$icudeath[(!is.na(final_df$combinedeathtime)) & ( difftime(final_df$combinedeathtime, final_df$icu_intime, units = "secs") >=0) & (difftime(final_df$combinedeathtime, final_df$icu_outtime, units = "secs") >0 ) & (difftime(final_df$combinedeathtime, final_df$icu_outtime, units = "secs") <259200 ) ] <- 1
+final_df$icudeath[(!is.na(final_df$combinedeathtime)) & (difftime(final_df$combinedeathtime, final_df$icu_intime, units = "secs") >=0) & (difftime(final_df$icu_outtime, final_df$combinedeathtime, units = "secs") >=0 ) ] <- 1
+final_df$icudeath[(!is.na(final_df$combinedeathtime)) & (difftime(final_df$combinedeathtime, final_df$icu_intime, units = "secs") >=0) & (difftime(final_df$combinedeathtime, final_df$icu_outtime, units = "secs") >0 ) & (difftime(final_df$combinedeathtime, final_df$icu_outtime, units = "secs") <259200 ) ] <- 1
 
 # "Survived or discharged to other locations within 72 hours of ICU discharge"
 # "ICU death within 72 hours of ICU discharge"
 final_df$icudeath[final_df$icudeath == 0] <- "Survived"
 final_df$icudeath[final_df$icudeath == 1] <- "Died"
 
+# Encode mechanical ventilation
 final_df[, 'newvent24'] <- 5
 final_df$newvent24[final_df$vent_24 == 'InvasiveVent'
                    | final_df$vent_24 == 'HFNC'
@@ -137,31 +132,46 @@ final_df$newvent24[final_df$vent_24 == 'InvasiveVent'
 final_df$newvent24[is.na(final_df$vent_24) ]<- 0
 final_df$newvent24[final_df$vent_24 == 'SupplementalOxygen'] <- 0
 
+# Encode SOFA components to normal vs. abnormal 
+abnormal = c(3,4)
+normal = c(0,1,2)
 
-final_df$cns_24[final_df$vent_24 == 'InvasiveVent'] <- "Mechanical Ventilation (MV)"
-final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 == 0] <- "Normal"
-final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 == 0] <- "Normal"
-final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 %in%  c(1,2,3,4)] <- "Abnormal"
-final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 %in%  c(1,2,3,4)] <- "Abnormal"
-
-final_df$resp_24[final_df$newvent24 == 1] <- "Abnormal"
-final_df$resp_24[final_df$newvent24 == 0 & final_df$resp_24 == 0] <- "Normal"
-final_df$resp_24[final_df$newvent24 == 0 & final_df$resp_24 %in%  c(1,2,3,4)] <- "Abnormal"
-
-final_df$coag_24[final_df$coag_24 == 0] <- "Normal"
-final_df$coag_24[final_df$coag_24 %in%  c(1,2,3,4)] <- "Abnormal"
-
-final_df$liver_24[final_df$liver_24 == 0] <- "Normal"
-final_df$liver_24[final_df$liver_24 %in%  c(1,2,3,4)] <- "Abnormal"
-
-final_df$cv_24[final_df$cv_24 == 0] <- "Normal"
-final_df$cv_24[final_df$cv_24 %in%  c(1,2,3,4)] <- "Abnormal"
-
+# First iteration -> following rule was applied
 # No MV and abnormal CNS    = Abnormal
 # No MV and normal CNS      = Normal
+# MV and abnormal CNS       = Abnormal
+# MV and normal CNS         = Abnormal
 
-final_df$renal_24[final_df$renal_24 == 0] <- "Normal"
-final_df$renal_24[final_df$renal_24 %in%  c(1,2,3,4)] <- "Abnormal"
+# Rules for Resp
+# final_df$resp_24[final_df$newvent24 == 1] <- "Abnormal"
+# final_df$resp_24[final_df$newvent24 == 0 & final_df$resp_24 %in% normal] <- "Normal"
+# final_df$resp_24[final_df$newvent24 == 0 & final_df$resp_24 %in% abnormal)] <- "Abnormal"
+
+# Rules for CNS
+# final_df$cns_24[final_df$vent_24 == 'InvasiveVent'] <- "Mechanical Ventilation (MV)"
+# final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 %in% normal] <- "Normal"
+# final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 %in% normal] <- "Normal"
+# final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 %in% abnormal)] <- "Abnormal"
+# final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 %in% abnormal] <- "Abnormal"
+
+# Second iteration -> no rule -> instead use Ventilation Yes/No as is and implement interaction term in GLM
+final_df$resp_24[final_df$resp_24 %in% normal] <- "Normal"
+final_df$resp_24[final_df$resp_24 %in% abnormal] <- "Abnormal"
+
+final_df$cns_24[final_df$cns_24 %in% normal] <- "Normal"
+final_df$cns_24[final_df$cns_24 %in% abnormal] <- "Abnormal"
+
+final_df$coag_24[final_df$coag_24 %in% normal] <- "Normal"
+final_df$coag_24[final_df$coag_24 %in% abnormal] <- "Abnormal"
+
+final_df$liver_24[final_df$liver_24 %in% normal] <- "Normal"
+final_df$liver_24[final_df$liver_24 %in% abnormal] <- "Abnormal"
+
+final_df$cv_24[final_df$cv_24 %in% normal] <- "Normal"
+final_df$cv_24[final_df$cv_24 %in% abnormal] <- "Abnormal"
+
+final_df$renal_24[final_df$renal_24 %in% normal] <- "Normal"
+final_df$renal_24[final_df$renal_24 %in% abnormal] <- "Abnormal"
 
 write.csv(final_df,"data/cohorts/MIMIC_24.csv")
 
@@ -193,37 +203,25 @@ final_df$newvent168[final_df$vent_168 == 'InvasiveVent'
                     | final_df$vent_168 == 'Tracheostomy'
                     | final_df$vent_168 == 'NonInvasiveVent'] <- 1
 final_df$newvent168[is.na(final_df$vent_168) ] <- 0
-final_df$newvent168[final_df$vent_168 == 'SupplementalOxygen'] <- 0  
+final_df$newvent168[final_df$vent_168 == 'SupplementalOxygen'] <- 0    
 
-final_d$vent_168[final_d$vent_168 == 'InvasiveVent'
-                    | final_d$vent_168 == 'HFNC'
-                    | final_d$vent_168 == 'Tracheostomy'
-                    | final_d$vent_168 == 'NonInvasiveVent'] <- 1
-final_d$vent_168[is.na(final_d$vent_168) ] <- 0
-final_d$vent_168[final_d$vent_168 == 'SupplementalOxygen'] <- 0   
+final_df$resp_168[final_df$resp_168 %in% normal] <- "Normal"
+final_df$resp_168[final_df$resp_168 %in% abnormal] <- "Abnormal"
 
-final_df$resp_168[final_df$newvent168 == 1] <- "Abnormal"
-final_df$resp_168[final_df$newvent168 == 0 & final_df$resp_168 == 0] <- "Normal"
-final_df$resp_168[final_df$newvent168 == 0 & final_df$resp_168 %in% c(1,2,3,4)] <- "Abnormal"
+final_df$cns_168[final_df$cns_168 %in% normal] <- "Normal"
+final_df$cns_168[final_df$cns_168 %in% abnormal] <- "Abnormal"
 
+final_df$coag_168[ final_df$coag_168 %in% normal] <- "Normal"
+final_df$coag_168[ final_df$coag_168 %in% abnormal] <- "Abnormal"
 
-final_df$coag_168[ final_df$coag_168 == 0] <- "Normal"
-final_df$coag_168[ final_df$coag_168 %in%  c(1,2,3,4)] <- "Abnormal"
+final_df$liver_168[ final_df$liver_168 %in% normal] <- "Normal"
+final_df$liver_168[ final_df$liver_168 %in% abnormal] <- "Abnormal"
 
-final_df$liver_168[ final_df$liver_168 == 0] <- "Normal"
-final_df$liver_168[ final_df$liver_168 %in%  c(1,2,3,4)] <- "Abnormal"
+final_df$cv_168[ final_df$cv_168 %in% normal] <- "Normal"
+final_df$cv_168[ final_df$cv_168 %in% abnormal] <- "Abnormal"
 
-final_df$cv_168[ final_df$cv_168 == 0] <- "Normal"
-final_df$cv_168[ final_df$cv_168 %in%  c(1,2,3,4)] <- "Abnormal"
-
-final_df$cns_168[final_df$vent_168 == "InvasiveVent"] <- "Mechanical Ventilation (MV)"
-final_df$cns_168[final_df$vent_168 != "InvasiveVent"  & (!is.na(final_df$cns_168)) & (final_df$cns_168 == 0)] <- "Normal"
-final_df$cns_168[is.na(final_df$vent_168) & (!is.na(final_df$cns_168)) & (final_df$cns_168 == 0)] <- "Normal"
-final_df$cns_168[final_df$vent_168 != "InvasiveVent"  & (!is.na(final_df$cns_168)) & (final_df$cns_168 %in%  c(1,2,3,4))] <- "Abnormal"
-final_df$cns_168[is.na(final_df$vent_168) &(!is.na(final_df$cns_168)) & (final_df$cns_168 %in%  c(1,2,3,4))] <- "Abnormal"
-
-final_df$renal_168[ final_df$renal_168 == 0] <- "Normal"
-final_df$renal_168[ final_df$renal_168 %in%  c(1,2,3,4)] <- "Abnormal"
+final_df$renal_168[ final_df$renal_168 %in% normal] <- "Normal"
+final_df$renal_168[ final_df$renal_168 %in% abnormal] <- "Abnormal"
 
 print(paste0("Final Number of Patients (168h): ", nrow(final_df)))
 

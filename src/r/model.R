@@ -17,8 +17,9 @@ encode_data <- function (df, cohort, time) {
         df <- within(df, cv_24      <- relevel(factor(cv_24),       ref = "Normal"))
         df <- within(df, renal_24   <- relevel(factor(renal_24),    ref = "Normal"))
         df <- within(df, liver_24   <- relevel(factor(liver_24),    ref = "Normal"))
+        df <- within(df, newvent24  <- newvent24)
 
-        comps <- c("cns_24", "coag_24", "resp_24", "cv_24", "renal_24", "liver_24")
+        comps <- c("cns_24", "coag_24", "resp_24", "cv_24", "renal_24", "liver_24", "newvent24")
 
     } else if (time == "168") {
 
@@ -28,8 +29,8 @@ encode_data <- function (df, cohort, time) {
         df <- within(df, cv_168     <- relevel(factor(cv_168),      ref = "Normal"))
         df <- within(df, renal_168  <- relevel(factor(renal_168),   ref = "Normal"))
         df <- within(df, liver_168  <- relevel(factor(liver_168),   ref = "Normal"))
-
-        comps <- c("cns_168", "coag_168", "resp_168", "cv_168", "renal_168", "liver_168")
+        df <- within(df, newvent168 <- newvent168)
+        comps <- c("cns_168", "coag_168", "resp_168", "cv_168", "renal_168", "liver_168", "newvent168")
     }
 
    # if (s == "no_cirrhosis") {
@@ -44,7 +45,7 @@ encode_data <- function (df, cohort, time) {
 
     ready_df <- df[, append(comps, 
     c("m_age","gender", "ethnicity", "icudeath", "cirr_present",
-    "sepsis3", "medical", "charlson", "mv_24", "mv_168", "ckd_stages",
+    "sepsis3", "medical", "charlson", "ckd_stages",
     "hypertension_present",	"heart_failure_present", "asthma_present", "copd_present"))]
 
     write.csv(ready_df, 'data/d.csv')
@@ -59,14 +60,14 @@ run_glm <- function(df, time) {
 
         m <- glm(icudeath ~ m_age + gender + ethnicity + sepsis3 + medical + charlson + cirr_present + # regular confounders
                             hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages + # regular confounders
-                            mv_24 * cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,    # SOFA components
+                            newvent24 * cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,    # SOFA components
             data = df, family = "binomial"(link=logit))
 
     } else if (time == "168") {
 
         m <- glm(icudeath ~ m_age + gender + ethnicity + sepsis3 + medical + charlson + cirr_present + # regular confounders
                             hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages + # regular confounders
-                            mv_168 * cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,   # SOFA components
+                            newvent168 * cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,   # SOFA components
             data = df, family = "binomial"(link=logit))
     }
 

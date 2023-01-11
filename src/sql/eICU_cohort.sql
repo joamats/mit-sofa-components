@@ -117,8 +117,8 @@ WITH
     FROM `icu_elos.sepsis_adult_eicu`
     )
 
-, first_service as (
-SELECT patientunitstayid as first_service_id, specialty AS first_service
+, first_tbl as (
+SELECT patientunitstayid as service_id, specialty AS first_service
     FROM 
     (
         SELECT patientunitstayid, managingphysician, careprovidersaveoffset, specialty,
@@ -131,6 +131,27 @@ SELECT patientunitstayid as first_service_id, specialty AS first_service
     AND service_seq = 1
     AND careprovidersaveoffset BETWEEN -(60*6) AND (24*60) -- analogous to SOFA rule, pick -6 and +24h from admission to unit
     )
+
+, apache AS (
+    SELECT patientunitstayid AS apache_id, physicianspeciality
+ FROM `physionet-data.eicu_crd.apachepatientresult`
+)
+
+, first_service AS (
+    Select patientunitstayid AS first_service_id, MIN(COALESCE(physicianspeciality, first_service)) AS specialty
+    From `physionet-data.eicu_crd.patient` AS patient
+
+    LEFT JOIN first_tbl
+    ON patient.patientunitstayid = first_tbl.service_id
+
+    LEFT JOIN apache
+    ON patient.patientunitstayid = apache.apache_id
+
+    GROUP BY patientunitstayid
+    ORDER BY patientunitstayid
+)
+
+
 
 SELECT distinct *
 FROM `physionet-data.eicu_crd_derived.icustay_detail` AS cohort 

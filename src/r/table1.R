@@ -96,7 +96,7 @@ run_table1 <- function(cohort) {
             data=df,
             overall=F,
             extra.col=list(`P-value`=pvalue),
-            render.missing=NULL,
+            #render.missing=NULL,
             topclass="Rtable1-grid Rtable1-shade Rtable1-times",
             render.categorical=render.categorical, render.strat=render.strat
             )

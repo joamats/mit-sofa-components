@@ -74,7 +74,8 @@ df$ethnicity[df$ethnicity == "Hispanic"] <- "HISPANIC"
 df$ethnicity[df$ethnicity == "Native American" | df$ethnicity == "Other/Unknown" | is.na(df$ethnicity)] <- "OTHER"
 
 # Map service typ to Medical vs. non-Medical/Surgical
-df$medical <- df$first_service
+df$medical <- df$specialty
+df$medical[is.na(df$medical)] <- "other"
 df <- df %>% mutate(medical= ifelse(
   medical == 'urology' 
   | medical == 'unknown'
@@ -106,36 +107,41 @@ df$last_code <- NULL
 df$gender[df$gender == 0 ] <- "Female"
 df$gender[df$gender == 1 ] <- "Male"
 
-# Encode mechanical ventilation
-df$mv_24 <- df$mv24_id
-df$mv_168 <- df$mv168_id
-df <- df %>% mutate(mv_24= ifelse(is.na(mv_24),0,1))
-df <- df %>% mutate(mv_168= ifelse(is.na(mv_168),0,1))
-
 # Encode age
-df$age[df$age == ">89"] <- 90
+df$age[df$age == "> 89"] <- 90
+
+# Encode mechanical ventilation at 24h
+df[, 'newvent24'] <- NA
+df$newvent24[!is.na(df$mv24_id)] <- 1
+df$newvent24[is.na(df$mv24_id) ]<- 0
 
 # Encode SOFA components
-abnormalvalue = c(1,2,3,4)
+abnormal = c(3,4)
+normal = c(0,1,2)
 
-df$coag_24[df$coag_24 == 0] <- "Normal"
-df$coag_24[df$coag_24 %in% abnormalvalue] <- "Abnormal"
+# First iteration -> following rule was applied -> see cohort_MIMIC.r for details
+# No MV and abnormal CNS    = Abnormal
+# No MV and normal CNS      = Normal
+# MV and abnormal CNS       = Abnormal
+# MV and normal CNS         = Abnormal
 
-df$liver_24[df$liver_24 == 0] <- "Normal"
-df$liver_24[df$liver_24 %in% abnormalvalue] <- "Abnormal"
+df$coag_24[df$coag_24 %in% normal] <- "Normal"
+df$coag_24[df$coag_24 %in% abnormal] <- "Abnormal"
 
-df$cv_24[df$cv_24 == 0] <- "Normal"
-df$cv_24[df$cv_24 %in% abnormalvalue] <- "Abnormal"
+df$liver_24[df$liver_24 %in% normal] <- "Normal"
+df$liver_24[df$liver_24 %in% abnormal] <- "Abnormal"
 
-df$renal_24[df$renal_24 == 0] <- "Normal"
-df$renal_24[df$renal_24 %in% abnormalvalue] <- "Abnormal"
+df$cv_24[df$cv_24 %in% normal] <- "Normal"
+df$cv_24[df$cv_24 %in% abnormal] <- "Abnormal"
 
-df$resp_24[df$resp_24 == 0] <- "Normal"
-df$resp_24[df$resp_24 %in% abnormalvalue] <- "Abnormal"
+df$renal_24[df$renal_24 %in% normal] <- "Normal"
+df$renal_24[df$renal_24 %in% abnormal] <- "Abnormal"
 
-df$cns_24[df$cns_24 == 0] <- "Normal"
-df$cns_24[df$cns_24 %in% abnormalvalue] <- "Abnormal"
-df$cns_24[!is.na(df$mv24_id)] <- "Mechanical Ventilation (MV)"
+df$resp_24[df$resp_24 %in% normal] <- "Normal"
+df$resp_24[df$resp_24 %in% abnormal] <- "Abnormal"
+
+df$cns_24[df$cns_24 %in% normal] <- "Normal"
+df$cns_24[df$cns_24 %in% abnormal] <- "Abnormal"
 
 print(paste0("Final Number of Patients (24h): ", nrow(df)))
 
@@ -152,26 +158,30 @@ df1 <- df[df$situation168 == 1,]
 
 print(paste0("Patients removed whose stay was not longer than 7days: ", nrow(df) - nrow(df1)))
 
+# Encode mechanical ventilation at 168h
+df1[, 'newvent168'] <- NA
+df1$newvent168[!is.na(df1$mv168_id)] <- 1
+df1$newvent168[is.na(df1$mv168_id) ]<- 0
+
 df1 <- df1[!is.na(df1$s168_id),]
 
-df1$coag_168[df1$coag_168 == 0] <- "Normal"
-df1$coag_168[df1$coag_168 %in% abnormalvalue] <- "Abnormal"
+df1$coag_168[df1$coag_168 %in% normal] <- "Normal"
+df1$coag_168[df1$coag_168 %in% abnormal] <- "Abnormal"
 
-df1$liver_168[df1$liver_168 == 0] <- "Normal"
-df1$liver_168[df1$liver_168 %in% abnormalvalue] <- "Abnormal"
+df1$liver_168[df1$liver_168 %in% normal] <- "Normal"
+df1$liver_168[df1$liver_168 %in% abnormal] <- "Abnormal"
 
-df1$cv_168[df1$cv_168 == 0] <- "Normal"
-df1$cv_168[df1$cv_168 %in% abnormalvalue] <- "Abnormal"
+df1$cv_168[df1$cv_168 %in% normal] <- "Normal"
+df1$cv_168[df1$cv_168 %in% abnormal] <- "Abnormal"
 
-df1$renal_168[df1$renal_168 == 0] <- "Normal"
-df1$renal_168[df1$renal_168 %in% abnormalvalue] <- "Abnormal"
+df1$renal_168[df1$renal_168 %in% normal] <- "Normal"
+df1$renal_168[df1$renal_168 %in% abnormal] <- "Abnormal"
 
-df1$resp_168[df1$resp_168 == 0] <- "Normal"
-df1$resp_168[df1$resp_168 %in% abnormalvalue] <- "Abnormal"
+df1$resp_168[df1$resp_168 %in% normal] <- "Normal"
+df1$resp_168[df1$resp_168 %in% abnormal] <- "Abnormal"
 
-df1$cns_168[df1$cns_168 == 0] <- "Normal"
-df1$cns_168[df1$cns_168 %in% abnormalvalue] <- "Abnormal"
-df1$cns_168[!is.na(df1$mv168_id)] <- "Mechanical Ventilation (MV)"
+df1$cns_168[df1$cns_168 %in% normal] <- "Normal"
+df1$cns_168[df1$cns_168 %in% abnormal] <- "Abnormal"
 
 print(paste0("Final Number of Patients (168h): ", nrow(df1)))
 

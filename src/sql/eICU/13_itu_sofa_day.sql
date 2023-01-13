@@ -40,6 +40,14 @@ with pivoted_sofa AS (
                     then cast(nursingchartvalue as numeric)
                 else null end)
                 as gcs
+              , min(case
+                when nursingchartcelltypecat = 'Scores'
+                and nursingchartcelltypevallabel = 'Glasgow coma score'
+                and nursingchartcelltypevalname = 'GCS Total'
+                and nursingchartvalue = 'Unable to score due to medication'
+                    then 15
+                else null end)
+                as gcs_corr
             , min(case
                 when nursingchartcelltypevallabel = 'Glasgow coma score'
                 and nursingchartcelltypevalname = 'Motor'
@@ -77,6 +85,7 @@ with pivoted_sofa AS (
         patientunitstayid,
         chartoffset,
         case when gcs > 2 and gcs < 16 then gcs else null end as gcs,
+        gcs_corr,
         gcsmotor, 
         gcsverbal, 
         gcseyes
@@ -621,7 +630,13 @@ with pivoted_sofa AS (
             WHEN gcs BETWEEN 6 AND 9 THEN 3
             WHEN gcs BETWEEN 10 AND 12 THEN 2
             WHEN gcs BETWEEN 13 AND 14 THEN 1
-            ELSE 0 END) AS sofa_gcs,
+            ELSE 0 END) AS sofa_gcs_uncorr,
+
+    MAX(CASE WHEN gcs_corr < 6 THEN 4
+            WHEN gcs_corr BETWEEN 6 AND 9 THEN 3
+            WHEN gcs_corr BETWEEN 10 AND 12 THEN 2
+            WHEN gcs_corr BETWEEN 13 AND 14 THEN 1
+            ELSE 0 END) AS sofa_gcs_corr,    
     --Circulation--
     --Mean arterial pressure OR administration of vasopressors required	SOFA score
     --MAP ≥ 70 mmHg	0
@@ -691,9 +706,17 @@ with pivoted_sofa AS (
         AND l.chartoffset BETWEEN d.startoffset AND d.endoffset
     GROUP BY d.patientunitstayid, d.day
 )
+
+-- addition to correct for GCS in sedated patients
+, coal_gcs AS (
+SELECT
+*, COALESCE(sofa_gcs_corr, sofa_gcs_uncorr) AS sofa_gcs,
+FROM pivoted_sofa
+)
+
 SELECT
 *,
 sofa_resp + sofa_gcs + sofa_circ + sofa_liver + sofa_hematology + sofa_renal AS sofa,
 sofa_resp + sofa_circ + sofa_liver + sofa_hematology + sofa_renal AS sofa_wo_gcs
-FROM pivoted_sofa
+FROM coal_gcs
 ORDER BY patientunitstayid, day

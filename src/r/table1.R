@@ -53,7 +53,7 @@ run_table1 <- function(cohort) {
   df$copd_present <- factor(df$copd_present, levels=c(0, 1), 
                                     labels = c('COPD absent', 'COPD present')) 
   df <- within(df, ckd_stages <- factor(ckd_stages, levels = c(0, 1, 2, 3, 4, 5)))
-  df <- within(df, ckd_stages <- fct_collapse(ckd_stages, Normal=c("0", "1", "2"), Stage3="3", Stage4="4", Stage5="5"))
+  df <- within(df, ckd_stages <- fct_collapse(ckd_stages, Absent=c("0", "1", "2"), Present=c("3", "4", "5")))
 
   df$ethnicity <- factor(df$ethnicity, levels=c("HISPANIC",
                                                 "BLACK",
@@ -67,7 +67,7 @@ run_table1 <- function(cohort) {
   df$cv_24    <- factor(df$cv_24,     levels=c("Abnormal","Normal"))
   df$liver_24 <- factor(df$liver_24,  levels=c("Abnormal","Normal"))
   df$renal_24 <- factor(df$renal_24,  levels=c("Abnormal","Normal"))
-  df$cns_24   <- factor(df$cns_24,    levels=c("Mechanical Ventilation (MV)","Abnormal","Normal"))
+  df$cns_24   <- factor(df$cns_24,    levels=c("Abnormal","Normal"))
 
   # Label variables
   label(df$charlson) <- "Charlson comorbidity index"
@@ -125,7 +125,7 @@ run_table1 <- function(cohort) {
   df1$copd_present <- factor(df1$copd_present, levels=c(0, 1), 
                                     labels = c('COPD absent', 'COPD present')) 
   df1 <- within(df1, ckd_stages <- factor(ckd_stages, levels = c(0, 1, 2, 3, 4, 5)))
-  df1 <- within(df1, ckd_stages <- fct_collapse(ckd_stages, normal=c("0", "1", "2"), stage3="3", stage4="4", stage5="5"))
+  df1 <- within(df1, ckd_stages <- fct_collapse(ckd_stages, Absent=c("0", "1", "2"), Present=c("3", "4", "5")))
 
                                               
   df1$ethnicity <- factor(df1$ethnicity, levels=c("HISPANIC",
@@ -140,7 +140,7 @@ run_table1 <- function(cohort) {
   df1$cv_168    <- factor(df1$cv_168,     levels=c("Abnormal", "Normal"))
   df1$liver_168 <- factor(df1$liver_168,  levels=c("Abnormal", "Normal"))
   df1$renal_168 <- factor(df1$renal_168,  levels=c("Abnormal", "Normal"))
-  df1$cns_168   <- factor(df1$cns_168,    levels=c("Mechanical Ventilation (MV)", "Abnormal", "Normal"))
+  df1$cns_168   <- factor(df1$cns_168,    levels=c("Abnormal", "Normal"))
   df1$ethnicity <- factor(df1$ethnicity,  levels=c("HISPANIC", "BLACK", "WHITE", "ASIAN", "OTHER"))
 
   # Label variables

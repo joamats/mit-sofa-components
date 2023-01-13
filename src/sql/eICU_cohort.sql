@@ -191,7 +191,7 @@ ON cohort.patientunitstayid = first_service.first_service_id
 
 LEFT JOIN(
   SELECT *
-  FROM `db_name.my_eICU.pivoted_commorbidities`
+  FROM `db_name.my_eICU.pivoted_comorbidities`
 )
 AS comms
 ON cohort.patientunitstayid = comms.patientunitstayid

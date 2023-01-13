@@ -92,11 +92,6 @@ final_df$sepsis3[final_df$sepsis3 == 'TRUE'] <- "Yes"
 final_df$sepsis3[is.na(final_df$sepsis3)] <- "No"
 
 # Encode key comorbidities
-final_df <- final_df %>% mutate(hypertension_present= ifelse(is.na(hypertension_present),0,1))
-final_df <- final_df %>% mutate(heart_failure_present= ifelse(is.na(heart_failure_present),0,1))
-final_df <- final_df %>% mutate(asthma_present= ifelse(is.na(asthma_present),0,1))
-final_df <- final_df %>% mutate(copd_present= ifelse(is.na(copd_present),0,1))
-final_df <- final_df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))
 final_df <- final_df %>% mutate(sepsis3= ifelse(sepsis3=="Yes",1,0))
 
 # Encode cirrhosis

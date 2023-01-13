@@ -42,6 +42,8 @@ run_table1 <- function(cohort) {
                                     labels = c('Sepsis absent', 'Sepsis present')) 
   df$medical <- factor(df$medical, levels=c(0, 1), 
                                     labels = c('Non-Medical admission', 'Medical admission')) 
+  df$adm_elective <- factor(df$adm_elective, levels=c(0, 1), 
+                                    labels = c('Emergency admission', 'Elective admission'))                                   
   df$cirr_present <- factor(df$cirr_present, levels=c(0, 1), 
                                     labels = c('Cirrhosis absent', 'Cirrhosis present')) 
   df$hypertension_present <- factor(df$hypertension_present, levels=c(0, 1), 
@@ -73,8 +75,9 @@ run_table1 <- function(cohort) {
   label(df$charlson) <- "Charlson comorbidity index"
   label(df$gender) <- "Sex"
   label(df$age) <- "Age"
-  label(df$sepsis3) <- "Admission diagnosis"
-  label(df$medical) <- "Admission type"
+  label(df$sepsis3) <- "Sepsis admission"
+  label(df$medical) <- "Admission unit"
+  label(df$adm_elective) <- "Admission type"
   label(df$cirr_present) <- "Cirrhosis"
   label(df$hypertension_present) <- "Hypertension"
   label(df$heart_failure_present) <- "Congestive heart failure"
@@ -84,13 +87,13 @@ run_table1 <- function(cohort) {
   label(df$ethnicity) <- "Ethnicity"
 
   label(df$resp_24) <- "SOFA - Respiration at 24 hours"
-  label(df$cns_24) <- "SOFA-CNS and MV at 24 hours"
+  label(df$cns_24) <- "SOFA - CNS at 24 hours"
   label(df$cv_24) <- "SOFA - Cardiovascular at 24 hours"
   label(df$coag_24) <- "SOFA - Coagulation at 24 hours"
   label(df$renal_24) <- "SOFA - Renal at 24 hours"
   label(df$liver_24) <- "SOFA - Liver at 24 hours"
 
-  t1 <- table1(~ gender + age + ethnicity + sepsis3 + medical + charlson + 
+  t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + medical + charlson + 
                  cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
                  cns_24 + resp_24 + coag_24 + liver_24 + cv_24  + renal_24 | icudeath,
             data=df,
@@ -112,6 +115,8 @@ run_table1 <- function(cohort) {
   df1$icudeath <- factor(df1$icudeath, levels=c("Survived", "Died"))
   df1$sepsis3 <- factor(df1$sepsis3, levels=c(0, 1), 
                                     labels = c('Sepsis absent', 'Sepsis present')) 
+  df1$adm_elective <- factor(df1$adm_elective, levels=c(0, 1), 
+                                    labels = c('Emergency admission', 'Elective admission'))                                     
   df1$medical <- factor(df1$medical, levels=c(0, 1), 
                                     labels = c('Non-Medical admission', 'Medical admission')) 
   df1$cirr_present <- factor(df1$cirr_present, levels=c(0, 1), 
@@ -147,8 +152,9 @@ run_table1 <- function(cohort) {
   label(df1$charlson) <- "Charlson comorbidity index"
   label(df1$gender) <- "Sex"
   label(df1$age) <- "Age"
-  label(df1$sepsis3) <- "Admission diagnosis"
-  label(df1$medical) <- "Admission type"
+  label(df1$sepsis3) <- "Sepsis admission"
+  label(df1$medical) <- "Admission unit"
+  label(df1$adm_elective) <- "Admission type"
   label(df1$cirr_present) <- "Cirrhosis"
   label(df1$hypertension_present) <- "Hypertension"
   label(df1$heart_failure_present) <- "Congestive heart failure"
@@ -158,13 +164,13 @@ run_table1 <- function(cohort) {
   label(df1$ethnicity) <- "Ethnicity"
 
   label(df1$resp_168) <- "SOFA - Respiration at 168 hours"
-  label(df1$cns_168) <- "SOFA-CNS and MV at 168 hours"
+  label(df1$cns_168) <- "SOFA - CNS at 168 hours"
   label(df1$cv_168) <- "SOFA - Cardiovascular at 168 hours"
   label(df1$coag_168) <- "SOFA - Coagulation at 168 hours"
   label(df1$renal_168) <- "SOFA - Renal at 168 hours"
   label(df1$liver_168) <- "SOFA - Liver at 168 hours"
 
-  t1 <- table1(~ gender + age + ethnicity + sepsis3 + medical + charlson + 
+  t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + medical + charlson + 
               cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
               cns_168 + resp_168 + coag_168 + liver_168 + cv_168  + renal_168 | icudeath,
               data=df1,

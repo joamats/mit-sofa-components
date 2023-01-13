@@ -202,3 +202,10 @@ LEFT JOIN(
 )
 AS codes
 ON cohort.patientunitstayid = codes.patientunitstayid
+
+LEFT JOIN(
+  SELECT patientunitstayid, adm_elective
+  FROM `db_name.my_eICU.pivoted_elective`
+)
+AS adm
+ON cohort.patientunitstayid = adm.patientunitstayid

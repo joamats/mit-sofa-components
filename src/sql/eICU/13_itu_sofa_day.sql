@@ -1,7 +1,7 @@
 -- https://github.com/cjmartin0/ITUscoringAnalysis/blob/master/eICU_SOFAscores_SQL.txt
 
-drop table if exists `db_name.itu_sofa_day`;
-create table `db_name.itu_sofa_day` as
+drop table if exists `protean-chassis-368116.icu_elos.itu_sofa_day`;
+create table `protean-chassis-368116.icu_elos.itu_sofa_day` as
 
 with pivoted_sofa AS (
     with all_days as (
@@ -626,17 +626,17 @@ with pivoted_sofa AS (
     --10–12	+2
     --6–9	+3
     --< 6	+4
-    MAX(CASE WHEN gcs < 6 THEN 4
+    MAX(CASE WHEN gcs BETWEEN 3 AND 5 THEN 4
             WHEN gcs BETWEEN 6 AND 9 THEN 3
             WHEN gcs BETWEEN 10 AND 12 THEN 2
             WHEN gcs BETWEEN 13 AND 14 THEN 1
-            ELSE 0 END) AS sofa_gcs_uncorr,
+            ELSE NULL END) AS sofa_gcs_uncorr,
 
-    MAX(CASE WHEN gcs_corr < 6 THEN 4
+    MAX(CASE WHEN gcs_corr BETWEEN 3 AND 5 THEN 4
             WHEN gcs_corr BETWEEN 6 AND 9 THEN 3
             WHEN gcs_corr BETWEEN 10 AND 12 THEN 2
             WHEN gcs_corr BETWEEN 13 AND 14 THEN 1
-            ELSE 0 END) AS sofa_gcs_corr,    
+            ELSE NULL END) AS sofa_gcs_corr,   
     --Circulation--
     --Mean arterial pressure OR administration of vasopressors required	SOFA score
     --MAP ≥ 70 mmHg	0
@@ -710,7 +710,7 @@ with pivoted_sofa AS (
 -- addition to correct for GCS in sedated patients
 , coal_gcs AS (
 SELECT
-*, COALESCE(sofa_gcs_corr, sofa_gcs_uncorr) AS sofa_gcs,
+*, COALESCE(sofa_gcs_corr, sofa_gcs_uncorr,0) AS sofa_gcs,
 FROM pivoted_sofa
 )
 

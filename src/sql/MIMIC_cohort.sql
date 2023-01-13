@@ -111,10 +111,22 @@ WITH
     ON s.stay_id = v.stay_id
     AND s.starttime <= v.endtime
 )
+
+-- Add admission type
+-- Mapping: 
+-- Emergency: ‘AMBULATORY OBSERVATION’, ‘DIRECT EMER.’, ‘URGENT’, ‘EW EMER.’, ‘DIRECT OBSERVATION’, ‘EU OBSERVATION’, ‘OBSERVATION ADMIT’
+-- Elective: ‘ELECTIVE’, ‘SURGICAL SAME DAY ADMISSION’
+
 , adm AS (
     SELECT hadm_id,
            deathtime,
            admission_type,
+            CASE
+            WHEN (admission_type LIKE "%ELECTIVE%" OR
+            admission_type LIKE "%SURGICAL SAME DAY ADMISSION%") 
+            THEN 1
+            ELSE 0
+            END AS adm_elective,
            admission_location,
            discharge_location
     FROM `physionet-data.mimiciv_hosp.admissions`
@@ -181,7 +193,7 @@ on cohort.hadm_id = first_service.hadm_id
 -- Key Commorbidities
 LEFT JOIN(
   SELECT *
-  FROM `db_name.my_MIMIC.pivoted_commorbidities`
+  FROM `db_name.my_MIMIC.pivoted_comorbidities`
 )
 AS comms
 ON cohort.hadm_id = comms.hadm_id

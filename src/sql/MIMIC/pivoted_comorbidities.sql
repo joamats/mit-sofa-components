@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS `db_name.my_MIMIC.pivoted_commorbidities`;
-CREATE TABLE `db_name.my_MIMIC.pivoted_commorbidities` AS
+DROP TABLE IF EXISTS `db_name.my_MIMIC.pivoted_comorbidities`;
+CREATE TABLE `db_name.my_MIMIC.pivoted_comorbidities` AS
 
 SELECT DISTINCT
     icu.hadm_id

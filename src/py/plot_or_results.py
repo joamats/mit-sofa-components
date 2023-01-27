@@ -1,9 +1,10 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.ticker import AutoMinorLocator, FixedLocator
 import numpy as np
 
 import matplotlib
-matplotlib.use('TKAgg')
+#matplotlib.use('TKAgg')
 
 plot_name = "Forest Plot"
 df = pd.read_csv(f"results/sofa_plot_data.csv")
@@ -26,30 +27,65 @@ plt.xlabel('Odds Ratio and 95% Confidence Interval', fontsize=8)
 plt.tight_layout()
 # plt.savefig('raw_forest_plot.png')
 plt.show()
-
-
 """
 
-fig, ax = plt.subplots(nrows=1, sharex=True, sharey=True, figsize=(6, 4), dpi=150)
-for idx, row in df.iloc[::-1].iterrows():
-    ci = [[row['or'] - row[::-1]['lci']], [row['uci'] - row['or']]]
-    #if row['cohort'] == 'MIMIC':
-    plt.errorbar(x=[row['or']], y=[row.name], xerr=ci,
-            ecolor='tab:red', capsize=3, linestyle='None', linewidth=1, marker="o", 
-                     markersize=5, mfc="tab:red", mec="tab:red")
+# first components
+# second day
+# third cohort
 
-   # else: 
-    plt.errorbar(x=[row['or']], y=[row.name], xerr=ci,
-            ecolor='tab:gray', capsize=3, linestyle='None', linewidth=1, marker="o", 
-                     markersize=5, mfc="tab:gray", mec="tab:gray")
+components = df.component.unique()
+days = df.day.unique()
+cohorts = df.cohort.unique()
+colors = ["tab:red", "tab:blue"]
+markerstyles = ['o', 'v']
+yy = range(len(components), 0, -1)
+dayoffset = [-.25, .25]
+cohortoffset = [-.04, .04]
+
+fig, ax = plt.subplots(nrows=1, sharex=True, sharey=True, figsize=(6, 4), dpi=200)
+
+for c,y in zip(components, yy): 
+    
+    for i,k in enumerate(cohorts):
+
+        for j,d in enumerate(days):
+            new_df = df[(df.component == c) & (df.day == d)]
+            row = new_df[new_df.cohort == k]
+            ci = [row['or'] - row['lci'], row['uci'] - row['or'] ]
+            plt.errorbar(x=row['or'], y=y+dayoffset[j]+cohortoffset[i], xerr=ci, \
+                         ecolor=colors[i], capsize=3, \
+                         label = k, \
+                         linewidth=1, marker=markerstyles[j], \
+                         markersize=5, mfc=colors[i], mec=colors[i])
+
+ax.yaxis.grid(True, which='minor')  
+ax.set_yticks([1.5, 2.5, 3.5 , 4.5 , 5.5], minor=True)
+for tick in ax.yaxis.get_minor_ticks():
+    tick.tick1line.set_visible(False)
+    tick.tick2line.set_visible(False)
+    tick.label1.set_visible(False)
+    tick.label2.set_visible(False)
+
+plt.yticks(ticks= yy, \
+           labels=components)
+plt.ylabel(ylabel='SOFA components')
 plt.axvline(x=1, linewidth=0.8, linestyle='--', color='black')
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.xlabel('Odds Ratio and 95% Confidence Interval', fontsize=8)
 plt.tight_layout()
 plt.savefig('results/forest_plot.png')
-plt.show()
 
 
+
+"""
+
+
+    axes[i].errorbar(x=df_temp1.sofa_start, y=df_temp1.psi, 
+                     yerr=((df_temp1.psi- df_temp1.i_ci), (df_temp1.s_ci-df_temp1.psi)),
+                     fmt='-o', c='tab:gray', ecolor='tab:gray',
+                     elinewidth=.4, linewidth=1.5, capsize=4, markeredgewidth=.4,
+                     label="MIMIC")
+"""
 
 """
 sofas_start = [0., 4., 7., 11.]

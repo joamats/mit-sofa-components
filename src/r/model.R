@@ -47,7 +47,7 @@ encode_data <- function (df, cohort, time) {
     "sepsis3", "medical", "charlson", "ckd_stages",
     "hypertension_present",	"heart_failure_present", "asthma_present", "copd_present"))]
 
-    write.csv(ready_df, 'data/d.csv')
+    #write.csv(ready_df, 'data/d.csv')
 
     return (ready_df)
 

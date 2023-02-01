@@ -4,6 +4,7 @@ WITH
     FROM `physionet-data.mimiciv_hosp.drgcodes`
     WHERE drg_code IN ("231", "232" ,"233" , "234" ,"235" ,"236")
 )
+
 , cirrhosis AS (
     SELECT DISTINCT hadm_id AS cirrhosis_id
     FROM `physionet-data.mimiciv_hosp.diagnoses_icd`

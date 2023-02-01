@@ -1,7 +1,7 @@
 -- https://github.com/cjmartin0/ITUscoringAnalysis/blob/master/eICU_SOFAscores_SQL.txt
 
-drop table if exists `protean-chassis-368116.icu_elos.itu_sofa_day`;
-create table `protean-chassis-368116.icu_elos.itu_sofa_day` as
+drop table if exists `db_name.icu_elos.itu_sofa_day`;
+create table `db_name.icu_elos.itu_sofa_day` as
 
 with pivoted_sofa AS (
     with all_days as (
@@ -23,73 +23,15 @@ with pivoted_sofa AS (
         FROM all_days
         CROSS JOIN UNNEST(all_days.day) AS day
     ), pivoted_gcs AS (
-        WITH nc as(
-            select
-            patientunitstayid
-            , nursingchartoffset as chartoffset
-            , min(case
-                when nursingchartcelltypevallabel = 'Glasgow coma score'
-                and nursingchartcelltypevalname = 'GCS Total'
-                and REGEXP_CONTAINS(nursingchartvalue, '^[-]?[0-9]+[.]?[0-9]*$')
-                and nursingchartvalue not in ('-','.')
-                    then cast(nursingchartvalue as numeric)
-                when nursingchartcelltypevallabel = 'Score (Glasgow Coma Scale)'
-                and nursingchartcelltypevalname = 'Value'
-                and REGEXP_CONTAINS(nursingchartvalue, '^[-]?[0-9]+[.]?[0-9]*$')
-                and nursingchartvalue not in ('-','.')
-                    then cast(nursingchartvalue as numeric)
-                else null end)
-                as gcs
-              , min(case
-                when nursingchartcelltypecat = 'Scores'
-                and nursingchartcelltypevallabel = 'Glasgow coma score'
-                and nursingchartcelltypevalname = 'GCS Total'
-                and nursingchartvalue = 'Unable to score due to medication'
-                    then 15
-                else null end)
-                as gcs_corr
-            , min(case
-                when nursingchartcelltypevallabel = 'Glasgow coma score'
-                and nursingchartcelltypevalname = 'Motor'
-                and REGEXP_CONTAINS(nursingchartvalue, '^[-]?[0-9]+[.]?[0-9]*$')
-                and nursingchartvalue not in ('-','.')
-                    then cast(nursingchartvalue as numeric)
-                else null end)
-                as gcsmotor
-            , min(case
-                when nursingchartcelltypevallabel = 'Glasgow coma score'
-                and nursingchartcelltypevalname = 'Verbal'
-                and REGEXP_CONTAINS(nursingchartvalue, '^[-]?[0-9]+[.]?[0-9]*$')
-                and nursingchartvalue not in ('-','.')
-                    then cast(nursingchartvalue as numeric)
-                else null end)
-                as gcsverbal
-            , min(case
-                when nursingchartcelltypevallabel = 'Glasgow coma score'
-                and nursingchartcelltypevalname = 'Eyes'
-                and REGEXP_CONTAINS(nursingchartvalue, '^[-]?[0-9]+[.]?[0-9]*$')
-                and nursingchartvalue not in ('-','.')
-                    then cast(nursingchartvalue as numeric)
-                else null end)
-                as gcseyes
-            from `physionet-data.eicu_crd.nursecharting`
-            -- speed up by only looking at a subset of charted data
-            where nursingchartcelltypecat in
-            (
-                'Scores', 'Other Vital Signs and Infusions'
-            )
-            group by patientunitstayid, nursingchartoffset
-            )
-            -- apply some preprocessing to fields
         select
         patientunitstayid,
         chartoffset,
-        case when gcs > 2 and gcs < 16 then gcs else null end as gcs,
-        gcs_corr,
-        gcsmotor, 
-        gcsverbal, 
-        gcseyes
-        from nc
+        gcs_total,
+        gcs_total_corr,
+        gcs_motor, 
+        gcs_verbal, 
+        gcs_eyes
+        from `db_name.icu_elos.gcs`
     ), pivoted_labs AS (
         SELECT
         patientunitstayid,
@@ -626,16 +568,16 @@ with pivoted_sofa AS (
     --10–12	+2
     --6–9	+3
     --< 6	+4
-    MAX(CASE WHEN gcs BETWEEN 3 AND 5 THEN 4
-            WHEN gcs BETWEEN 6 AND 9 THEN 3
-            WHEN gcs BETWEEN 10 AND 12 THEN 2
-            WHEN gcs BETWEEN 13 AND 14 THEN 1
+    MAX(CASE WHEN gcs_total BETWEEN 3 AND 5 THEN 4
+            WHEN gcs_total BETWEEN 6 AND 9 THEN 3
+            WHEN gcs_total BETWEEN 10 AND 12 THEN 2
+            WHEN gcs_total BETWEEN 13 AND 14 THEN 1
             ELSE NULL END) AS sofa_gcs_uncorr,
 
-    MAX(CASE WHEN gcs_corr BETWEEN 3 AND 5 THEN 4
-            WHEN gcs_corr BETWEEN 6 AND 9 THEN 3
-            WHEN gcs_corr BETWEEN 10 AND 12 THEN 2
-            WHEN gcs_corr BETWEEN 13 AND 14 THEN 1
+    MAX(CASE WHEN gcs_total_corr BETWEEN 3 AND 5 THEN 4
+            WHEN gcs_total_corr BETWEEN 6 AND 9 THEN 3
+            WHEN gcs_total_corr BETWEEN 10 AND 12 THEN 2
+            WHEN gcs_total_corr BETWEEN 13 AND 14 THEN 1
             ELSE NULL END) AS sofa_gcs_corr,   
     --Circulation--
     --Mean arterial pressure OR administration of vasopressors required	SOFA score
@@ -710,7 +652,8 @@ with pivoted_sofa AS (
 -- addition to correct for GCS in sedated patients
 , coal_gcs AS (
 SELECT
-*, COALESCE(sofa_gcs_corr, sofa_gcs_uncorr,0) AS sofa_gcs,
+*
+, COALESCE(sofa_gcs_corr, sofa_gcs_uncorr,0) AS sofa_gcs,
 FROM pivoted_sofa
 )
 

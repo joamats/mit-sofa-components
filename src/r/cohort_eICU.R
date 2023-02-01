@@ -152,7 +152,7 @@ df$situation168[(df$unitdischargeoffset - df$unitadmitoffset >= 10080) &
 # remove null sofa scores at 168 hours
 df1 <- df[df$situation168 == 1,]
 
-print(paste0("Patients removed whose stay was not longer than 7days: ", nrow(df) - nrow(df1)))
+print(paste0("Patients removed whose stay was not longer than 7 days: ", nrow(df) - nrow(df1)))
 
 # Encode mechanical ventilation at 168h
 df1[, 'newvent168'] <- NA

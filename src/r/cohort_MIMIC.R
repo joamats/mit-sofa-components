@@ -30,10 +30,16 @@ df4 <-df3[!(df3$death_in==1),]
 df5 <-df4[!(df4$discharge_in==1),]
 print(paste0("Patients removed who were not 24h (died or discharged): ", nrow(df2) - nrow(df5)))
 
-df6 <- df5[!(is.na(df5$cns_24)),]
-print(paste0("Patients removed without cns info: ", nrow(df5) - nrow(df6)))
+# Remove patients with CABG 
+df6 <- df5[is.na(df5$cabg_id),]
+print(paste0("Patients removed with CABG: ", nrow(df5) - nrow(df6)))
 
-final_df <- df6
+# Remove patients with missing GCS 
+df7 <- df6[!(is.na(df6$cns_24)),]
+print(paste0("Patients removed without cns info: ", nrow(df6) - nrow(df7)))
+
+
+final_df <- df7
 print(paste0("Final Number of Patients (24h): ", nrow(final_df)))
 
 # Map ethnicity
@@ -184,13 +190,13 @@ df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|d
 df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (!is.na(df$discharge_location)) & (df$discharge_location != "HOSPICE")] <-"Discharge"
 df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (is.na(df$discharge_location)) ] <-"Discharge"
 
-# Keep only the patients who were alive more than 7 days
+# Keep only the patients who were alive more than 7 days and have information on ventilation
 final_d <- df[(df$situation168=="Alive"),]
-
-print(paste0("Patients removed that did not spend 7 days (died or were discharged): ", nrow(df) - nrow(final_d)))
-
 final_df <- final_d[(!is.na(final_d$resp_168)),]
-print(paste0("Patients removed with missing resp info: ", nrow(final_d) - nrow(final_df)))
+#print(paste0("Patients removed with missing resp info: ", nrow(final_d) - nrow(final_df)))
+
+print(paste0("Patients removed that did not spend 7 days (died or were discharged): ", nrow(df) - nrow(final_df)))
+
 
 final_df[, 'newvent168'] <- 5
 final_df$newvent168[final_df$vent_168 == 'InvasiveVent'

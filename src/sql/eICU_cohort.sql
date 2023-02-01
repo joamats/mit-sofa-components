@@ -37,7 +37,9 @@ WITH
     SELECT patientunitstayid AS p_id,
            hospitaldischargelocation,
            unitdischargestatus,
-           hospitaldischargestatus
+           hospitaldischargestatus,
+           unitvisitnumber,
+           round(unitdischargeoffset/60, 2) AS los_icu
     FROM `physionet-data.eicu_crd.patient`
 )
 , cabg_adm AS (

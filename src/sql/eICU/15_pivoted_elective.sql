@@ -2,8 +2,8 @@
 
 -- Mapping
 -- Assume emergency admission if patient came from
--- Emergency Department
--- Assume elective admission if patient from other place, e.g. operating room, floor, Direct Admit, Chest Pain Center, Other Hospital, Observation, etc.
+-- Emergency Department, Direct Admit, Chest Pain Center, Other Hospital, or Observation
+-- Assume elective admission if patient from other place, e.g. operating room, floor, etc.
 
 DROP TABLE IF EXISTS `db_name.my_eICU.pivoted_elective`;
 CREATE TABLE `db_name.my_eICU.pivoted_elective` AS
@@ -14,6 +14,11 @@ WITH elective_admission AS (
     SELECT pat.patientunitstayid, adm_elective2
       , CASE
       WHEN unitAdmitSource LIKE "Emergency Department" THEN 0
+      WHEN unitAdmitSource LIKE "Chest Pain Center" THEN 0
+      WHEN unitAdmitSource LIKE "Other Hospital" THEN 0
+      WHEN unitAdmitSource LIKE "Other" THEN 0
+      WHEN unitAdmitSource LIKE "Observation" THEN 0
+      WHEN unitAdmitSource LIKE "Direct Admit" THEN 0
       ELSE 1
       END AS adm_elective1
       FROM `physionet-data.eicu_crd.patient` AS pat

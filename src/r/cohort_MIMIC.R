@@ -94,6 +94,8 @@ final_df <- final_df %>% mutate(medical= ifelse(
 final_df$gender[final_df$gender == "M"] <- "Male"
 final_df$gender[final_df$gender == "F"] <- "Female"
 
+final_df <- final_df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages) ,0,ckd_stages))
+
 final_df$sepsis3[final_df$sepsis3 == 'TRUE'] <- "Yes"
 final_df$sepsis3[is.na(final_df$sepsis3)] <- "No"
 
@@ -103,6 +105,10 @@ final_df <- final_df %>% mutate(sepsis3= ifelse(sepsis3=="Yes",1,0))
 # Encode cirrhosis
 final_df$cirr_present <- final_df$cirrhosis_id 
 final_df <- final_df %>% mutate(cirr_present= ifelse(is.na(cirr_present),0,1))
+
+final_df <- final_df %>% mutate(heart_failure_present= ifelse(is.na(heart_failure_present),0,1))
+final_df <- final_df %>% mutate(copd_present = ifelse(is.na(copd_present),0,1))
+final_df <- final_df %>% mutate(asthma_present= ifelse(is.na(asthma_present),0,1))
 
 # Encode admission code status
 final_df$full_therapy <- final_df$first_code

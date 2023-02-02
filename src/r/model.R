@@ -91,7 +91,6 @@ for (c in cohorts) {
             df <- read.csv(paste0("data/cohorts/", c, "_", t, ".csv"))
             df <- encode_data(df, c, t)
             df <- sens_analysis(df, v)
-            write.csv(df,"data/d.csv")
             m_OR <- run_glm(df, t)
             write.csv(m_OR, paste0("results/glm/sens_analyses/", c, "_", t, "_", v, ".csv"))
         }

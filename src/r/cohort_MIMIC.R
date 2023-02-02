@@ -38,7 +38,6 @@ print(paste0("Patients removed with CABG: ", nrow(df5) - nrow(df6)))
 df7 <- df6[!(is.na(df6$cns_24)),]
 print(paste0("Patients removed without cns info: ", nrow(df6) - nrow(df7)))
 
-
 final_df <- df7
 print(paste0("Final Number of Patients (24h): ", nrow(final_df)))
 

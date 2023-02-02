@@ -30,7 +30,7 @@ cohorts = {"MIMIC": "MIMIC-IV",
 
 colors = ["tab:red", "tab:blue"]
 markerstyles = ['o', 'v']
-daysoffset = [-.1,.1]
+daysoffset = [.1,-.1]
 
 yy = range(6, 0, -1)
 

@@ -1,5 +1,5 @@
 encode_data <- function (df, cohort, time) {
-#encode_data <- function (df, cohort, time, sens_anl) {
+
     df[,'m_age'] <- NA
     df$m_age <-df$age / 10
 
@@ -32,25 +32,31 @@ encode_data <- function (df, cohort, time) {
         comps <- c("cns_168", "coag_168", "resp_168", "cv_168", "renal_168", "liver_168")
     }
 
-   # if (s == "no_cirrhosis") {
-
-   #     df <- df[is.na(df$cirrhosis_id),]
-
-   # } else if (s == "no_esrd") {
-
-   #     df <- df[is.na(df$esrd_id),]
-
-   # } # else we just keep df as is
-
     ready_df <- df[, append(comps, 
-    c("m_age","gender", "ethnicity", "icudeath", "cirr_present",
-    "sepsis3", "medical", "charlson", "ckd_stages",
-    "hypertension_present",	"heart_failure_present", "asthma_present", "copd_present"))]
-
-    #write.csv(ready_df, 'data/d.csv')
+                            c("m_age","gender", "ethnicity", "charlson", "icudeath", 
+                            "cirr_present","ckd_stages","heart_failure_present", "asthma_present", "copd_present"))]
 
     return (ready_df)
 
+}
+
+sens_analysis <- function(df, var) {
+
+    if (var == "ckd") {
+        df <- df[df$ckd_stages == "Absent", ]
+
+    } else if (var == "cirrhosis"){
+        df <- df[df$cirr_present == 0,]
+
+    } else if (var == "heart_failure") {
+        df <- df[df$heart_failure_present == 0,]
+
+    } else if (var == "copd_asthma") {
+        df <- df[df$copd_present == 0,]
+        df <- df[df$asthma_present == 0,]    
+    }
+
+    return(df)
 }
 
 run_glm <- function(df, time) {
@@ -75,20 +81,18 @@ run_glm <- function(df, time) {
 
 }
 
-cohorts <- c("MIMIC", "eICU")
+cohorts <- c("MIMIC","eICU")
 times <- c("24","168")
-#sens_analys <- c("all", "no_cirrhosis", "no_esrd")
+vars_to_remove <- c("all", "ckd", "cirrhosis", "heart_failure", "copd_asthma")
 
 for (c in cohorts) {
     for (t in times) {
-       # for (s in sens_analys) {
-
+        for (v in vars_to_remove) {
             df <- read.csv(paste0("data/cohorts/", c, "_", t, ".csv"))
             df <- encode_data(df, c, t)
-            #df <- encode_data(df, c, t, s)
+            df <- sens_analysis(df, v)
             m_OR <- run_glm(df, t)
-            write.csv(m_OR, paste0("results/glm/", c, "_", t, ".csv"))
-            #write.csv(m_OR, paste0("results/glm/", c, "_", t, "_", s, ".csv"))
-       # }
+            write.csv(m_OR, paste0("results/glm/sens_analyses/", c, "_", t, "_", v, ".csv"))
+        }
     }
 }

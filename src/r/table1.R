@@ -97,8 +97,7 @@ run_table1 <- function(cohort) {
                  cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
                  cns_24 + resp_24 + coag_24 + liver_24 + cv_24  + renal_24 | icudeath,
             data=df,
-            overall=F,
-            extra.col=list(`P-value`=pvalue),
+            overall=T,
             #render.missing=NULL,
             topclass="Rtable1-grid Rtable1-shade Rtable1-times",
             render.categorical=render.categorical, render.strat=render.strat
@@ -174,9 +173,7 @@ run_table1 <- function(cohort) {
               cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
               cns_168 + resp_168 + coag_168 + liver_168 + cv_168  + renal_168 | icudeath,
               data=df1,
-              overall=F,
-              extra.col=list(`P-value`=pvalue),
-              render.missing=NULL,
+              overall=T,
               topclass="Rtable1-grid Rtable1-shade Rtable1-times",
               render.categorical=render.categorical, render.strat=render.strat
               )

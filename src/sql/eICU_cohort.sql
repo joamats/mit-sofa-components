@@ -1,7 +1,6 @@
 WITH
   sofa24 AS (
     SELECT patientunitstayid AS s24_id,
-            sofa_resp AS resp_24,
             sofa_gcs AS cns_24,
             sofa_circ AS cv_24,
             sofa_liver AS liver_24,
@@ -12,7 +11,6 @@ WITH
 )
 , sofa168 AS (
     SELECT patientunitstayid AS s168_id,
-           sofa_resp AS resp_168,
            sofa_gcs AS cns_168,
            sofa_circ AS cv_168,
            sofa_liver AS liver_168,
@@ -20,6 +18,12 @@ WITH
            sofa_renal AS renal_168
     FROM `icu_elos.itu_sofa_day`
     WHERE day = 7
+)
+, resp_sofa AS (
+    SELECT patientunitstayid AS resp_sofa_id,
+           sofa_resp_d1 AS resp_24,
+          sofa_resp_d7 AS resp_168
+    FROM `icu_elos.sofa_resp`
 )
 , vent24 AS (
     SELECT patientunitstayid AS mv24_id
@@ -163,6 +167,9 @@ ON cohort.patientunitstayid = sofa24.s24_id
 
 LEFT JOIN sofa168
 ON cohort.patientunitstayid = sofa168.s168_id
+
+LEFT JOIN resp_sofa
+ON cohort.patientunitstayid = resp_sofa.resp_sofa_id
 
 LEFT JOIN vent24
 ON cohort.patientunitstayid = vent24.mv24_id

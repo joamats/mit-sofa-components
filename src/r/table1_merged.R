@@ -80,7 +80,7 @@ run_table1 <- function(cohort) {
 
   t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + medical + charlson + 
                  cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
-                 cns_24 + resp_24 + coag_24 + liver_24 + cv_24  + renal_24 | icudeath,
+                 cns_24 + resp_24 + coag_24 + liver_24 + cv_24  + renal_24,
             data=df,
             overall=TRUE,
             render.missing=NULL,
@@ -156,7 +156,7 @@ run_table1 <- function(cohort) {
 
   t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + medical + charlson + 
               cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
-              cns_168 + resp_168 + coag_168 + liver_168 + cv_168  + renal_168 | icudeath,
+              cns_168 + resp_168 + coag_168 + liver_168 + cv_168  + renal_168,
               data=df1,
               overall=TRUE,
               render.missing=NULL,

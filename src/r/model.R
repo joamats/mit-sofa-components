@@ -1,3 +1,9 @@
+library(magrittr) 
+library(dplyr)
+library(tidyr)
+library(gdata)
+library(forcats)
+
 encode_data <- function (df, cohort, time) {
 
     df[,'m_age'] <- NA
@@ -64,13 +70,13 @@ run_glm <- function(df, time) {
     if (time == "24") {
 
         m <- glm(icudeath ~ m_age + gender + ethnicity + charlson + # regular confounders
-                            cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,    # SOFA components
+                            cns_24 + resp_24 + coag_24 + liver_24 + cv_24 + renal_24,  # SOFA components
             data = df, family = "binomial"(link=logit))
 
     } else if (time == "168") {
 
         m <- glm(icudeath ~ m_age + gender + ethnicity + charlson + # regular confounders
-                            cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,   # SOFA components
+                            cns_168 + resp_168 + coag_168 + liver_168 + cv_168 + renal_168,  # SOFA components
             data = df, family = "binomial"(link=logit))
     }
 

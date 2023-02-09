@@ -36,9 +36,9 @@ print(paste0("Patients removed who were not on the 1st stay with 24h: ", nrow(df
 df5 <- df4[!(is.na(df4$resp_24)),]
 print(paste0("Patients removed without resp info: ", nrow(df4) - nrow(df5)))
 
-# Remove patients under 16
-df6 <- df5[(df5$age>=16),]
-print(paste0("Patients removed that were less than 16yo: ", nrow(df5) - nrow(df6)))
+# Remove patients under 18
+df6 <- df5[(df5$age>=18),]
+print(paste0("Patients removed that were less than 18yo: ", nrow(df5) - nrow(df6)))
 
 # Remove patients without gender info
 df7 <- df6[!is.na(df6$gender), ]

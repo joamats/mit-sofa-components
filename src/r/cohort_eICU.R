@@ -21,22 +21,24 @@ df1[,'discharge_in'] <- 5
 df1$discharge_in[df1$hospitaldischargeoffset - df1$unitadmitoffset <  1440] <- 1
 df1$discharge_in[df1$hospitaldischargeoffset - df1$unitadmitoffset >= 1440] <- 0
 
-# Remove patients who are not on a first stay
-df2 <-df1[(df1$unitvisitnumber==1),]
-print(paste0("Patients removed who were not on a 1st stay: ", nrow(df1) - nrow(df2)))
-
 # Remove patients who were not 24h in the ICU / hosptial
-df3 <-df2[!(df2$out_in==1),]
-df4 <-df3[!(df3$discharge_in==1),]
-print(paste0("Patients removed who were not 24h: ", nrow(df2) - nrow(df4)))
+df2 <-df1[!(df1$out_in==1),]
+df3 <-df2[!(df2$discharge_in==1),]
+print(paste0("Patients removed who were not 24h: ", nrow(df1) - nrow(df3)))
+
+df4 <- df3 %>% group_by(patienthealthsystemstayid) %>% mutate(MinSeq = min(unitvisitnumber, na.rm=T))
+
+# Remove patients who are not on the first stay with 24h
+df5 <-df4[(df4$unitvisitnumber==df4$MinSeq),]
+print(paste0("Patients removed who were not on the 1st stay with 24h: ", nrow(df4) - nrow(df5)))
 
 # Remove patients without resp info
 df5 <- df4[!(is.na(df4$resp_24)),]
 print(paste0("Patients removed without resp info: ", nrow(df4) - nrow(df5)))
 
-# Remove patients under 16
-df6 <- df5[(df5$age>=16),]
-print(paste0("Patients removed that were less than 16yo: ", nrow(df5) - nrow(df6)))
+# Remove patients under 18
+df6 <- df5[(df5$age>=18),]
+print(paste0("Patients removed that were less than 18yo: ", nrow(df5) - nrow(df6)))
 
 # Remove patients without gender info
 df7 <- df6[!is.na(df6$gender), ]
@@ -74,15 +76,14 @@ df$ethnicity[df$ethnicity == "Hispanic"] <- "HISPANIC"
 df$ethnicity[df$ethnicity == "Native American" | df$ethnicity == "Other/Unknown" | is.na(df$ethnicity)] <- "OTHER"
 
 # Map service typ to Medical vs. non-Medical/Surgical
-df$medical <- df$specialty
-df$medical[is.na(df$medical)] <- "other"
-df <- df %>% mutate(medical= ifelse(
-  medical == 'urology' 
-  | medical == 'unknown'
-  | medical == 'radiology'
-  | medical == 'other'
-  | medical == 'obstetrics/gynecology'
-  | grepl('surgery', df$medical, ignore.case = TRUE) == 1, 0, 1))
+#df$medical <- df$specialty
+#df$medical[is.na(df$medical)] <- "other"
+#df <- df %>% mutate(medical= ifelse(
+#  medical == 'urology' 
+#  | medical == 'unknown'
+#  | medical == 'radiology'
+# | medical == 'obstetrics/gynecology'
+#  | grepl('surgery', df$medical, ignore.case = TRUE) == 1, 0, 1))
 
 # Encode key comorbidities
 df <- df %>% mutate(ckd_stages= ifelse(is.na(ckd_stages),0,ckd_stages))

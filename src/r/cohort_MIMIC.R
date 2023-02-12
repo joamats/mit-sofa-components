@@ -37,9 +37,9 @@ df4 <- df3 %>% group_by(subject_id) %>% mutate(MinSeq = min(abs_seq, na.rm=T))
 df5 <-df4[(df4$abs_seq==df4$MinSeq),]
 print(paste0("Patients removed who were not on the 1st stay with 24h: ", nrow(df4) - nrow(df5)))
 
-# Remove patients with CABG 
-df6 <- df5[is.na(df5$cabg_id),]
-print(paste0("Patients removed with CABG: ", nrow(df5) - nrow(df6)))
+# Remove patients with Elective Admission 
+df6 <- df5[df5$adm_elective == 0 | is.na(df5$adm_elective),]
+print(paste0("Patients removed with Elective Admission: ", nrow(df5) - nrow(df6)))
 
 # Remove patients with missing GCS 
 df7 <- df6[!(is.na(df6$cns_24)),]

@@ -213,8 +213,9 @@ AS codes
 ON cohort.patientunitstayid = codes.patientunitstayid
 
 LEFT JOIN(
-  SELECT patientunitstayid, adm_elective
+  SELECT patientunitstayid, MAX(adm_elective) AS adm_elective
   FROM `db_name.my_eICU.pivoted_elective`
+  GROUP BY patientunitstayid
 )
 AS adm
 ON cohort.patientunitstayid = adm.patientunitstayid

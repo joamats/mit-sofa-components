@@ -44,9 +44,9 @@ print(paste0("Patients removed that were less than 18yo: ", nrow(df5) - nrow(df6
 df7 <- df6[!is.na(df6$gender), ]
 print(paste0("Patients removed that had no gender info: ", nrow(df6) - nrow(df7)))
 
-# Remove patients with CABG 
-df8 <- df7[is.na(df7$cabg_id),]
-print(paste0("Patients removed with CABG: ", nrow(df7) - nrow(df8)))
+# Remove patients with Elective Admission 
+df8 <- df7[df7$adm_elective == 0 | is.na(df7$adm_elective),]
+print(paste0("Patients removed with Elective Admission: ", nrow(df7) - nrow(df8)))
 
 # Get final cohort
 df <- df8
@@ -82,7 +82,7 @@ df$ethnicity[df$ethnicity == "Native American" | df$ethnicity == "Other/Unknown"
 #  medical == 'urology' 
 #  | medical == 'unknown'
 #  | medical == 'radiology'
-# | medical == 'obstetrics/gynecology'
+#  | medical == 'obstetrics/gynecology'
 #  | grepl('surgery', df$medical, ignore.case = TRUE) == 1, 0, 1))
 
 # Encode key comorbidities

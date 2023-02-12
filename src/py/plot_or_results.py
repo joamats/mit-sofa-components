@@ -19,7 +19,7 @@ for h in days.keys():
 
 sens_analy = {"all": "All Patients",
               "cirrhosis": "No Cirrhosis Patients",
-              "ckd": "No CKD > 2 Patients",
+              "ckd": "No Patients with CKD over 2nd stage ",
               "copd_asthma": "No COPD Nor Asthma Patients",
               "heart_failure": "No CHF Patients"
              }

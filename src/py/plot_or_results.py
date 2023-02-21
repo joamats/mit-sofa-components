@@ -17,18 +17,18 @@ for h in days.keys():
                 f"renal_{h}Abnormal": "Renal"
                }
 
-sens_analy = {"all": "All Patients",
-              "cirrhosis": "No Cirrhosis Patients",
-              "ckd": "No Patients with CKD over 2nd stage ",
-              "copd_asthma": "No COPD Nor Asthma Patients",
-              "heart_failure": "No CHF Patients"
+sens_analy = {"all": ["All Patients",],
+              "cirrhosis": ["No Cirrhosis Patients", "Liver"],
+              "ckd": ["No Patients with CKD over 2nd stage", "Renal"],
+              "copd_asthma": ["No COPD Nor Asthma Patients", "Respiratory"],
+              "heart_failure": ["No CHF Patients", "Cardiovascular"]
              }
 
 cohorts = {"MIMIC": "MIMIC-IV",
           "eICU": "eICU-CRD"
           }
 
-colors = ["tab:red", "tab:blue"]
+colors = ["tab:blue", "tab:red"]
 markerstyles = ['o', 'v']
 daysoffset = [.1,-.1]
 
@@ -46,7 +46,7 @@ for s, s_name in sens_analy.items():
 
         for j, (h, d) in enumerate(days.items()):
 
-            df = pd.read_csv(f"results/glm/sens_analyses/{c}_{h}_{s}.csv")
+            df = pd.read_csv(f"results/glm/{c}_{h}_{s}.csv")
             df = df.rename(columns={"Unnamed: 0": "comp"})
 
             for (comp, comp_name), y in zip(comps[h].items(), yy): 
@@ -61,10 +61,10 @@ for s, s_name in sens_analy.items():
                     lbl = None
 
                 ax[i].errorbar(x=row['OR'], y=y+daysoffset[j], xerr=ci, \
-                               ecolor=colors[j], color=colors[j], \
+                               ecolor=colors[j], color=colors[j], marker=markerstyles[j], \
                                capsize=3, \
                                label = lbl, \
-                               linewidth=1, marker='o', \
+                               linewidth=1, \
                                markersize=5, mfc=colors[j], mec=colors[j])
 
         ax[i].set_title(c_name)

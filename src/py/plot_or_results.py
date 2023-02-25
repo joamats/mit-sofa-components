@@ -17,11 +17,11 @@ for h in days.keys():
                 f"renal_{h}Abnormal": "Renal"
                }
 
-sens_analy = {"all": ["All Patients",],
-              "cirrhosis": ["No Cirrhosis Patients", "Liver"],
-              "ckd": ["No Patients with CKD over 2nd stage", "Renal"],
-              "copd_asthma": ["No COPD Nor Asthma Patients", "Respiratory"],
-              "heart_failure": ["No CHF Patients", "Cardiovascular"]
+sens_analy = {"all": "",
+              "cirrhosis": "with No Cirrhosis Patients",
+              "ckd": "with No Patients with CKD over 2nd stage",
+              "copd_asthma": "with No COPD Nor Asthma Patients",
+              "heart_failure": "with No CHF Patients"
              }
 
 cohorts = {"MIMIC": "MIMIC-IV",
@@ -40,7 +40,7 @@ for s, s_name in sens_analy.items():
                            figsize=(10.5, 4), dpi=400)
                            
 
-    fig.suptitle(f"    SOFA Components Forest Plot, with {s_name}")
+    fig.suptitle(f"    SOFA Components Forest Plot {s_name}")
         
     for i, (c, c_name) in enumerate(cohorts.items()):
 
@@ -77,4 +77,4 @@ for s, s_name in sens_analy.items():
 
         plt.tight_layout()
 
-    fig.savefig(f'results/{s_name}.png')
+    fig.savefig(f'results/results_{s_name}.png')

@@ -130,6 +130,7 @@ dmypy.json
 
 # Data from MIMIC and eICU
 data/
+manuscript/
 
 # Results in Word files
 .docx

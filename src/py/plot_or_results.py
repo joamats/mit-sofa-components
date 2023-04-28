@@ -24,8 +24,8 @@ sens_analy = {"all": "",
               "heart_failure": "with No CHF Patients"
              }
 
-cohorts = {"MIMIC": "MIMIC-IV",
-          "eICU": "eICU-CRD"
+cohorts = {"eICU": "eICU-CRD",
+           "MIMIC": "MIMIC-IV"
           }
 
 colors = ["tab:blue", "tab:red"]
@@ -77,4 +77,5 @@ for s, s_name in sens_analy.items():
 
         plt.tight_layout()
 
-    fig.savefig(f'results/results_{s_name}.png')
+    fig.savefig(f'results/results_{s_name}.tif', dpi=300)
+    #fig.savefig(f'results/results_{s_name}.png', dpi=400,)

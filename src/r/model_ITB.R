@@ -20,6 +20,23 @@ encode_data <- function (df, cohort, time) {
         # Restrict cohort to those with los of at least 168 hours
         df <- df[df$los_icu >= 7,] # here in days
 
+        # Apply same filtering as before
+        df[,'situation168'] <- "Die"
+
+        # alive in ICU at 168hour
+        df$situation168[(difftime(df$dischtime, df$icu_intime, units = "secs")>=604800) & (difftime(df$icu_outtime, df$icu_intime, units = "secs") >=604800) & (!is.na(df$deathtime)) & (difftime(df$deathtime, df$icu_intime, units = "secs") >=604800) ]<- "Alive"
+        df$situation168[(difftime(df$dischtime, df$icu_intime, units = "secs")>=604800) & (difftime(df$icu_outtime, df$icu_intime, units = "secs") >=604800) & (is.na(df$deathtime)) ] <- "Alive"
+
+        # discharge before 168hour
+        df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (!is.na(df$deathtime)) & (difftime(df$deathtime,df$icu_outtime,units="secs") >= 259200)] <-"Discharge"
+        df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") >= 259200)] <-"Discharge"
+        df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (!is.na(df$discharge_location)) & (df$discharge_location != "HOSPICE")] <-"Discharge"
+        df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (is.na(df$discharge_location)) ] <-"Discharge"
+
+        # Keep only the patients who were alive more than 7 days and have information on ventilation
+        df <- df[(df$situation168=="Alive"),]
+        df <- df[(!is.na(df$resp_168)),]
+
         df <- within(df, cns_24     <- relevel(factor(cns_24),      ref = "Normal"))
         df <- within(df, coag_24    <- relevel(factor(coag_24),     ref = "Normal"))
         df <- within(df, resp_24    <- relevel(factor(resp_24),     ref = "Normal"))
@@ -33,6 +50,15 @@ encode_data <- function (df, cohort, time) {
         
         # Restrict cohort to those with los of at least 168 hours
         df <- df[df$los_icu >= 168,] # here in hours
+
+        # Assess situation at 168h
+        # still alive at 168 hours, 168 hours = 10080 minutes
+        df$situation168 <- 0
+        df$situation168[(df$unitdischargeoffset - df$unitadmitoffset >= 10080) &
+                        (df$hospitaldischargeoffset - df$unitadmitoffset >= 10080)] <- 1
+
+        # remove null sofa scores at 168 hours
+        df <- df[df$situation168 == 1,]
 
         df <- within(df, cns_24     <- relevel(factor(cns_24),      ref = "Normal"))
         df <- within(df, coag_24    <- relevel(factor(coag_24),     ref = "Normal"))

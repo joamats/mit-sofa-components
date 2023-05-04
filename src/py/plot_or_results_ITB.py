@@ -70,7 +70,7 @@ for s, s_name in sens_analy.items():
         ax[i].set_title(c_name)
         ax[i].axvline(x=1, linewidth=0.8, linestyle='--', color='black')
         ax[i].set_xlabel('Odds Ratio and 95% Confidence Interval')
-        ax[i].set_xlim([0.2, 4.5])
+        ax[i].set_xlim([0.2, 4.8])
         ax[0].set_ylabel(ylabel='SOFA Components')
         ax[i].set_yticks(ticks= yy, labels=comps[h].values())
         ax[1].legend(title="Day", bbox_to_anchor=(1.05, 0.6), loc='upper left')

@@ -146,8 +146,8 @@ final_df$newvent24[is.na(final_df$vent_24) ]<- 0
 final_df$newvent24[final_df$vent_24 == 'SupplementalOxygen'] <- 0
 
 # Encode SOFA components to normal vs. abnormal 
-abnormal = c(3,4)
-normal = c(0,1,2)
+# abnormal = c(3,4)
+# normal = c(0,1,2)
 
 # First iteration -> following rule was applied
 # No MV and abnormal CNS    = Abnormal
@@ -167,24 +167,24 @@ normal = c(0,1,2)
 # final_df$cns_24[final_df$vent_24 != 'InvasiveVent' & final_df$cns_24 %in% abnormal)] <- "Abnormal"
 # final_df$cns_24[is.na(final_df$vent_24) & final_df$cns_24 %in% abnormal] <- "Abnormal"
 
-# Second iteration -> no rule -> instead use Ventilation Yes/No as is and implement interaction term in GLM
-final_df$resp_24[final_df$resp_24 %in% normal] <- "Normal"
-final_df$resp_24[final_df$resp_24 %in% abnormal] <- "Abnormal"
+# Second iteration -> no rule 
+# final_df$resp_24[final_df$resp_24 %in% normal] <- "Normal"
+# final_df$resp_24[final_df$resp_24 %in% abnormal] <- "Abnormal"
 
-final_df$cns_24[final_df$cns_24 %in% normal] <- "Normal"
-final_df$cns_24[final_df$cns_24 %in% abnormal] <- "Abnormal"
+# final_df$cns_24[final_df$cns_24 %in% normal] <- "Normal"
+# final_df$cns_24[final_df$cns_24 %in% abnormal] <- "Abnormal"
 
-final_df$coag_24[final_df$coag_24 %in% normal] <- "Normal"
-final_df$coag_24[final_df$coag_24 %in% abnormal] <- "Abnormal"
+# final_df$coag_24[final_df$coag_24 %in% normal] <- "Normal"
+# final_df$coag_24[final_df$coag_24 %in% abnormal] <- "Abnormal"
 
-final_df$liver_24[final_df$liver_24 %in% normal] <- "Normal"
-final_df$liver_24[final_df$liver_24 %in% abnormal] <- "Abnormal"
+# final_df$liver_24[final_df$liver_24 %in% normal] <- "Normal"
+# final_df$liver_24[final_df$liver_24 %in% abnormal] <- "Abnormal"
 
-final_df$cv_24[final_df$cv_24 %in% normal] <- "Normal"
-final_df$cv_24[final_df$cv_24 %in% abnormal] <- "Abnormal"
+# final_df$cv_24[final_df$cv_24 %in% normal] <- "Normal"
+# final_df$cv_24[final_df$cv_24 %in% abnormal] <- "Abnormal"
 
-final_df$renal_24[final_df$renal_24 %in% normal] <- "Normal"
-final_df$renal_24[final_df$renal_24 %in% abnormal] <- "Abnormal"
+# final_df$renal_24[final_df$renal_24 %in% normal] <- "Normal"
+# final_df$renal_24[final_df$renal_24 %in% abnormal] <- "Abnormal"
 
 write.csv(final_df,"data/cohorts/MIMIC_24.csv")
 
@@ -218,23 +218,24 @@ final_df$newvent168[final_df$vent_168 == 'InvasiveVent'
 final_df$newvent168[is.na(final_df$vent_168) ] <- 0
 final_df$newvent168[final_df$vent_168 == 'SupplementalOxygen'] <- 0    
 
-final_df$resp_168[final_df$resp_168 %in% normal] <- "Normal"
-final_df$resp_168[final_df$resp_168 %in% abnormal] <- "Abnormal"
+# Encoding SOFA scores
+# final_df$resp_168[final_df$resp_168 %in% normal] <- "Normal"
+# final_df$resp_168[final_df$resp_168 %in% abnormal] <- "Abnormal"
 
-final_df$cns_168[final_df$cns_168 %in% normal] <- "Normal"
-final_df$cns_168[final_df$cns_168 %in% abnormal] <- "Abnormal"
+# final_df$cns_168[final_df$cns_168 %in% normal] <- "Normal"
+# final_df$cns_168[final_df$cns_168 %in% abnormal] <- "Abnormal"
 
-final_df$coag_168[ final_df$coag_168 %in% normal] <- "Normal"
-final_df$coag_168[ final_df$coag_168 %in% abnormal] <- "Abnormal"
+# final_df$coag_168[ final_df$coag_168 %in% normal] <- "Normal"
+# final_df$coag_168[ final_df$coag_168 %in% abnormal] <- "Abnormal"
 
-final_df$liver_168[ final_df$liver_168 %in% normal] <- "Normal"
-final_df$liver_168[ final_df$liver_168 %in% abnormal] <- "Abnormal"
+# final_df$liver_168[ final_df$liver_168 %in% normal] <- "Normal"
+# final_df$liver_168[ final_df$liver_168 %in% abnormal] <- "Abnormal"
 
-final_df$cv_168[ final_df$cv_168 %in% normal] <- "Normal"
-final_df$cv_168[ final_df$cv_168 %in% abnormal] <- "Abnormal"
+# final_df$cv_168[ final_df$cv_168 %in% normal] <- "Normal"
+# final_df$cv_168[ final_df$cv_168 %in% abnormal] <- "Abnormal"
 
-final_df$renal_168[ final_df$renal_168 %in% normal] <- "Normal"
-final_df$renal_168[ final_df$renal_168 %in% abnormal] <- "Abnormal"
+# final_df$renal_168[ final_df$renal_168 %in% normal] <- "Normal"
+# final_df$renal_168[ final_df$renal_168 %in% abnormal] <- "Abnormal"
 
 print(paste0("Final Number of Patients (168h): ", nrow(final_df)))
 

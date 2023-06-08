@@ -40,8 +40,6 @@ run_table1 <- function(cohort) {
   df$icudeath <- factor(df$icudeath, levels=c("Survived", "Died"))
   df$sepsis3 <- factor(df$sepsis3, levels=c(0, 1), 
                                     labels = c('Sepsis absent', 'Sepsis present')) 
-  df$medical <- factor(df$medical, levels=c(0, 1), 
-                                    labels = c('Non-Medical admission', 'Medical admission')) 
   df$adm_elective <- factor(df$adm_elective, levels=c(0, 1), 
                                     labels = c('Emergency admission', 'Elective admission'))                                   
   df$cirr_present <- factor(df$cirr_present, levels=c(0, 1), 
@@ -64,19 +62,11 @@ run_table1 <- function(cohort) {
                                                 "OTHER"))
 
   # 24 hours
-  df$resp_24  <- factor(df$resp_24,   levels=c("Abnormal","Normal"))
-  df$coag_24  <- factor(df$coag_24,   levels=c("Abnormal","Normal"))
-  df$cv_24    <- factor(df$cv_24,     levels=c("Abnormal","Normal"))
-  df$liver_24 <- factor(df$liver_24,  levels=c("Abnormal","Normal"))
-  df$renal_24 <- factor(df$renal_24,  levels=c("Abnormal","Normal"))
-  df$cns_24   <- factor(df$cns_24,    levels=c("Abnormal","Normal"))
-
   # Label variables
   label(df$charlson) <- "Charlson comorbidity index"
   label(df$gender) <- "Sex"
   label(df$age) <- "Age"
   label(df$sepsis3) <- "Sepsis admission"
-  label(df$medical) <- "Admission unit"
   label(df$adm_elective) <- "Admission type"
   label(df$cirr_present) <- "Cirrhosis"
   label(df$hypertension_present) <- "Hypertension"
@@ -93,14 +83,19 @@ run_table1 <- function(cohort) {
   label(df$renal_24) <- "SOFA - Renal at 24 hours"
   label(df$liver_24) <- "SOFA - Liver at 24 hours"
 
-  t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + medical + charlson + 
+  if (cohort == "eICU") {
+    df <- df %>% mutate(los_icu = los_icu/24) # Transform icu los from hours to days
+  }
+
+  t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + charlson + 
                  cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
                  cns_24 + resp_24 + coag_24 + liver_24 + cv_24  + renal_24 | icudeath,
-            data=df,
+            data= subset(df, los_icu >= 7), # subset to patients with los_icu >= 7 days
             overall=T,
             #render.missing=NULL,
             topclass="Rtable1-grid Rtable1-shade Rtable1-times",
-            render.categorical=render.categorical, render.strat=render.strat
+            render.categorical=render.categorical, render.strat=render.strat,
+            render.continuous=c(.="Mean (SD)", .="Median (Q2, Q3)")
             )
 
   t1flex(t1) %>% save_as_docx(path=paste0("results/table1/", cohort, "_24.docx"))
@@ -116,8 +111,6 @@ run_table1 <- function(cohort) {
                                     labels = c('Sepsis absent', 'Sepsis present')) 
   df1$adm_elective <- factor(df1$adm_elective, levels=c(0, 1), 
                                     labels = c('Emergency admission', 'Elective admission'))                                     
-  df1$medical <- factor(df1$medical, levels=c(0, 1), 
-                                    labels = c('Non-Medical admission', 'Medical admission')) 
   df1$cirr_present <- factor(df1$cirr_present, levels=c(0, 1), 
                                     labels = c('Cirrhosis absent', 'Cirrhosis present')) 
   df1$hypertension_present <- factor(df1$hypertension_present, levels=c(0, 1), 
@@ -139,20 +132,11 @@ run_table1 <- function(cohort) {
                                                   "OTHER"))
 
   # 168 hours
-  df1$resp_168  <- factor(df1$resp_168,   levels=c("Abnormal", "Normal"))
-  df1$coag_168  <- factor(df1$coag_168,   levels=c("Abnormal", "Normal"))
-  df1$cv_168    <- factor(df1$cv_168,     levels=c("Abnormal", "Normal"))
-  df1$liver_168 <- factor(df1$liver_168,  levels=c("Abnormal", "Normal"))
-  df1$renal_168 <- factor(df1$renal_168,  levels=c("Abnormal", "Normal"))
-  df1$cns_168   <- factor(df1$cns_168,    levels=c("Abnormal", "Normal"))
-  df1$ethnicity <- factor(df1$ethnicity,  levels=c("HISPANIC", "BLACK", "WHITE", "ASIAN", "OTHER"))
-
   # Label variables
   label(df1$charlson) <- "Charlson comorbidity index"
   label(df1$gender) <- "Sex"
   label(df1$age) <- "Age"
   label(df1$sepsis3) <- "Sepsis admission"
-  label(df1$medical) <- "Admission unit"
   label(df1$adm_elective) <- "Admission type"
   label(df1$cirr_present) <- "Cirrhosis"
   label(df1$hypertension_present) <- "Hypertension"
@@ -169,13 +153,14 @@ run_table1 <- function(cohort) {
   label(df1$renal_168) <- "SOFA - Renal at 168 hours"
   label(df1$liver_168) <- "SOFA - Liver at 168 hours"
 
-  t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + medical + charlson + 
+  t1 <- table1(~ gender + age + ethnicity + adm_elective + sepsis3 + charlson + 
               cirr_present + hypertension_present + heart_failure_present + asthma_present + copd_present + ckd_stages +
               cns_168 + resp_168 + coag_168 + liver_168 + cv_168  + renal_168 | icudeath,
               data=df1,
               overall=T,
               topclass="Rtable1-grid Rtable1-shade Rtable1-times",
-              render.categorical=render.categorical, render.strat=render.strat
+              render.categorical=render.categorical, render.strat=render.strat,
+              render.continuous=c(.="Mean (SD)", .="Median (Q2, Q3)")
               )
 
   t1flex(t1) %>% save_as_docx(path=paste0("results/table1/", cohort, "_168.docx"))

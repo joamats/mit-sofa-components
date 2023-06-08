@@ -37,12 +37,19 @@ encode_data <- function (df, cohort, time) {
         df <- df[(df$situation168=="Alive"),]
         df <- df[(!is.na(df$resp_168)),]
 
-        df <- within(df, cns_24     <- relevel(factor(cns_24),      ref = "Normal"))
-        df <- within(df, coag_24    <- relevel(factor(coag_24),     ref = "Normal"))
-        df <- within(df, resp_24    <- relevel(factor(resp_24),     ref = "Normal"))
-        df <- within(df, cv_24      <- relevel(factor(cv_24),       ref = "Normal"))
-        df <- within(df, renal_24   <- relevel(factor(renal_24),    ref = "Normal"))
-        df <- within(df, liver_24   <- relevel(factor(liver_24),    ref = "Normal"))
+        # df <- within(df, cns_24     <- relevel(factor(cns_24),      ref = "Normal"))
+        # df <- within(df, coag_24    <- relevel(factor(coag_24),     ref = "Normal"))
+        # df <- within(df, resp_24    <- relevel(factor(resp_24),     ref = "Normal"))
+        # df <- within(df, cv_24      <- relevel(factor(cv_24),       ref = "Normal"))
+        # df <- within(df, renal_24   <- relevel(factor(renal_24),    ref = "Normal"))
+        # df <- within(df, liver_24   <- relevel(factor(liver_24),    ref = "Normal"))
+
+        df <- within(df, cns_24)
+        df <- within(df, coag_24)
+        df <- within(df, resp_24)
+        df <- within(df, cv_24)
+        df <- within(df, renal_24)
+        df <- within(df, liver_24)
 
         comps <- c("cns_24", "coag_24", "resp_24", "cv_24", "renal_24", "liver_24")
 
@@ -60,23 +67,37 @@ encode_data <- function (df, cohort, time) {
         # remove null sofa scores at 168 hours
         df <- df[df$situation168 == 1,]
 
-        df <- within(df, cns_24     <- relevel(factor(cns_24),      ref = "Normal"))
-        df <- within(df, coag_24    <- relevel(factor(coag_24),     ref = "Normal"))
-        df <- within(df, resp_24    <- relevel(factor(resp_24),     ref = "Normal"))
-        df <- within(df, cv_24      <- relevel(factor(cv_24),       ref = "Normal"))
-        df <- within(df, renal_24   <- relevel(factor(renal_24),    ref = "Normal"))
-        df <- within(df, liver_24   <- relevel(factor(liver_24),    ref = "Normal"))
+        # df <- within(df, cns_24     <- relevel(factor(cns_24),      ref = "Normal"))
+        # df <- within(df, coag_24    <- relevel(factor(coag_24),     ref = "Normal"))
+        # df <- within(df, resp_24    <- relevel(factor(resp_24),     ref = "Normal"))
+        # df <- within(df, cv_24      <- relevel(factor(cv_24),       ref = "Normal"))
+        # df <- within(df, renal_24   <- relevel(factor(renal_24),    ref = "Normal"))
+        # df <- within(df, liver_24   <- relevel(factor(liver_24),    ref = "Normal"))
+
+        df <- within(df, cns_24)
+        df <- within(df, coag_24)
+        df <- within(df, resp_24)
+        df <- within(df, cv_24)
+        df <- within(df, renal_24)
+        df <- within(df, liver_24)
 
         comps <- c("cns_24", "coag_24", "resp_24", "cv_24", "renal_24", "liver_24")
 
     } else if (time == "168") {
 
-        df <- within(df, cns_168    <- relevel(factor(cns_168),     ref = "Normal"))
-        df <- within(df, coag_168   <- relevel(factor(coag_168),    ref = "Normal"))
-        df <- within(df, resp_168   <- relevel(factor(resp_168),    ref = "Normal"))
-        df <- within(df, cv_168     <- relevel(factor(cv_168),      ref = "Normal"))
-        df <- within(df, renal_168  <- relevel(factor(renal_168),   ref = "Normal"))
-        df <- within(df, liver_168  <- relevel(factor(liver_168),   ref = "Normal"))
+        # df <- within(df, cns_168    <- relevel(factor(cns_168),     ref = "Normal"))
+        # df <- within(df, coag_168   <- relevel(factor(coag_168),    ref = "Normal"))
+        # df <- within(df, resp_168   <- relevel(factor(resp_168),    ref = "Normal"))
+        # df <- within(df, cv_168     <- relevel(factor(cv_168),      ref = "Normal"))
+        # df <- within(df, renal_168  <- relevel(factor(renal_168),   ref = "Normal"))
+        # df <- within(df, liver_168  <- relevel(factor(liver_168),   ref = "Normal"))
+
+        df <- within(df, cns_168)
+        df <- within(df, coag_168)
+        df <- within(df, resp_168)
+        df <- within(df, cv_168)
+        df <- within(df, renal_168)
+        df <- within(df, liver_168)
 
         comps <- c("cns_168", "coag_168", "resp_168", "cv_168", "renal_168", "liver_168")
     }

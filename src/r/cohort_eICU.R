@@ -113,8 +113,8 @@ df$newvent24[!is.na(df$mv24_id)] <- 1
 df$newvent24[is.na(df$mv24_id) ]<- 0
 
 # Encode SOFA components
-abnormal = c(3,4)
-normal = c(0,1,2)
+# abnormal = c(3,4)
+# normal = c(0,1,2)
 
 # First iteration -> following rule was applied -> see cohort_MIMIC.r for details
 # No MV and abnormal CNS    = Abnormal
@@ -122,23 +122,23 @@ normal = c(0,1,2)
 # MV and abnormal CNS       = Abnormal
 # MV and normal CNS         = Abnormal
 
-df$coag_24[df$coag_24 %in% normal] <- "Normal"
-df$coag_24[df$coag_24 %in% abnormal] <- "Abnormal"
+# df$coag_24[df$coag_24 %in% normal] <- "Normal"
+# df$coag_24[df$coag_24 %in% abnormal] <- "Abnormal"
 
-df$liver_24[df$liver_24 %in% normal] <- "Normal"
-df$liver_24[df$liver_24 %in% abnormal] <- "Abnormal"
+# df$liver_24[df$liver_24 %in% normal] <- "Normal"
+# df$liver_24[df$liver_24 %in% abnormal] <- "Abnormal"
 
-df$cv_24[df$cv_24 %in% normal] <- "Normal"
-df$cv_24[df$cv_24 %in% abnormal] <- "Abnormal"
+# df$cv_24[df$cv_24 %in% normal] <- "Normal"
+# df$cv_24[df$cv_24 %in% abnormal] <- "Abnormal"
 
-df$renal_24[df$renal_24 %in% normal] <- "Normal"
-df$renal_24[df$renal_24 %in% abnormal] <- "Abnormal"
+# df$renal_24[df$renal_24 %in% normal] <- "Normal"
+# df$renal_24[df$renal_24 %in% abnormal] <- "Abnormal"
 
-df$resp_24[df$resp_24 %in% normal] <- "Normal"
-df$resp_24[df$resp_24 %in% abnormal] <- "Abnormal"
+# df$resp_24[df$resp_24 %in% normal] <- "Normal"
+# df$resp_24[df$resp_24 %in% abnormal] <- "Abnormal"
 
-df$cns_24[df$cns_24 %in% normal] <- "Normal"
-df$cns_24[df$cns_24 %in% abnormal] <- "Abnormal"
+# df$cns_24[df$cns_24 %in% normal] <- "Normal"
+# df$cns_24[df$cns_24 %in% abnormal] <- "Abnormal"
 
 print(paste0("Final Number of Patients (24h): ", nrow(df)))
 
@@ -162,23 +162,23 @@ df1$newvent168[is.na(df1$mv168_id) ]<- 0
 
 df1 <- df1[!is.na(df1$s168_id),]
 
-df1$coag_168[df1$coag_168 %in% normal] <- "Normal"
-df1$coag_168[df1$coag_168 %in% abnormal] <- "Abnormal"
+# df1$coag_168[df1$coag_168 %in% normal] <- "Normal"
+# df1$coag_168[df1$coag_168 %in% abnormal] <- "Abnormal"
 
-df1$liver_168[df1$liver_168 %in% normal] <- "Normal"
-df1$liver_168[df1$liver_168 %in% abnormal] <- "Abnormal"
+# df1$liver_168[df1$liver_168 %in% normal] <- "Normal"
+# df1$liver_168[df1$liver_168 %in% abnormal] <- "Abnormal"
 
-df1$cv_168[df1$cv_168 %in% normal] <- "Normal"
-df1$cv_168[df1$cv_168 %in% abnormal] <- "Abnormal"
+# df1$cv_168[df1$cv_168 %in% normal] <- "Normal"
+# df1$cv_168[df1$cv_168 %in% abnormal] <- "Abnormal"
 
-df1$renal_168[df1$renal_168 %in% normal] <- "Normal"
-df1$renal_168[df1$renal_168 %in% abnormal] <- "Abnormal"
+# df1$renal_168[df1$renal_168 %in% normal] <- "Normal"
+# df1$renal_168[df1$renal_168 %in% abnormal] <- "Abnormal"
 
-df1$resp_168[df1$resp_168 %in% normal] <- "Normal"
-df1$resp_168[df1$resp_168 %in% abnormal] <- "Abnormal"
+# df1$resp_168[df1$resp_168 %in% normal] <- "Normal"
+# df1$resp_168[df1$resp_168 %in% abnormal] <- "Abnormal"
 
-df1$cns_168[df1$cns_168 %in% normal] <- "Normal"
-df1$cns_168[df1$cns_168 %in% abnormal] <- "Abnormal"
+# df1$cns_168[df1$cns_168 %in% normal] <- "Normal"
+# df1$cns_168[df1$cns_168 %in% abnormal] <- "Abnormal"
 
 print(paste0("Final Number of Patients (168h): ", nrow(df1)))
 

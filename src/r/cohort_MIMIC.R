@@ -210,7 +210,7 @@ final_df <- final_d[(!is.na(final_d$resp_168)),]
 print(paste0("Patients removed that did not spend 7 days (died or were discharged): ", nrow(df) - nrow(final_df)))
 
 
-final_df[, 'newvent168'] <- 5
+final_df[,'newvent168'] <- 5
 final_df$newvent168[final_df$vent_168 == 'InvasiveVent'
                     | final_df$vent_168 == 'HFNC'
                     | final_df$vent_168 == 'Tracheostomy'

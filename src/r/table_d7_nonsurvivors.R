@@ -36,17 +36,50 @@ run_table1 <- function(cohort) {
   # Factor variables
   #df$d7_nonsurvivors <- 1
   df %>% mutate(d7_nonsurvivors = NA)
+  
+  df$situation168 <- "Death before d7"
 
   if (cohort == "eICU") {
-    # Transform icu los from hours to days
-    df <- df %>% mutate(los_icu = los_icu/24)
-  } 
+    # Used defintion from cohort scripts as accurate to minutes instead of hours
+    df$situation168[(df$unitdischargeoffset - df$unitadmitoffset >= 10080) &
+                (df$hospitaldischargeoffset - df$unitadmitoffset >= 10080)] <- "Alive at d7"
 
-  df <- df %>% mutate(d7_nonsurvivors= ifelse(los_icu < 7 & icudeath == "Died", 0,
-                                       ifelse(los_icu < 7 & icudeath == "Survived", 1, 2)))
+    df$situation168[(df$unitdischargeoffset - df$unitadmitoffset < 10080) &
+                (df$hospitaldischargeoffset - df$unitadmitoffset < 10080) &
+                (df$icudeath == 'Survived')] <- "Discharge before d7"
 
-  df$d7_nonsurvivors <- factor(df$d7_nonsurvivors, levels=c(0, 1, 2), 
-                                    labels = c('Death before d7', 'Discharge before d7', 'Alive at d7')) 
+  } else if (cohort == "MIMIC") {
+    
+    # Used defintion from cohort scripts as accurate to minutes instead of hours for MIMIC
+
+    # alive in ICU at 168hour
+    df$situation168[(difftime(df$dischtime, df$icu_intime, units = "secs")>=604800) & (difftime(df$icu_outtime, df$icu_intime, units = "secs") >=604800) & (!is.na(df$deathtime)) & (difftime(df$deathtime, df$icu_intime, units = "secs") >=604800) ]<- "Alive at d7"
+    df$situation168[(difftime(df$dischtime, df$icu_intime, units = "secs")>=604800) & (difftime(df$icu_outtime, df$icu_intime, units = "secs") >=604800) & (is.na(df$deathtime)) ] <- "Alive at d7"
+
+    # discharge before 168hour
+    df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (!is.na(df$deathtime)) & (difftime(df$deathtime,df$icu_outtime,units="secs") >= 259200)] <-"Discharge before d7"
+    df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") >= 259200)] <-"Discharge before d7"
+    df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (!is.na(df$discharge_location)) & (df$discharge_location != "HOSPICE")] <-"Discharge before d7"
+    df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (is.na(df$discharge_location)) ] <- "Discharge before d7"
+    df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|difftime(df$icu_outtime, df$icu_intime, units = "secs") <604800) & (is.na(df$deathtime)) & (difftime(df$dischtime,df$icu_outtime,units="secs") < 259200) & (is.na(df$discharge_location)) ] <- "Discharge before d7"
+
+    df$situation168[(is.na(df$resp_168))] <- "Discharge before d7"
+
+    # Keep only the patients who were alive more than 7 days and have information on ventilation
+    # df <- df[(df$situation168=="Alive"),]
+    #df <- df[(!is.na(df$resp_168)),]
+
+    }
+
+  df$d7_nonsurvivors <- df$situation168
+
+  # df <- df %>% mutate(d7_nonsurvivors= ifelse(situation168 == "Dead" & icudeath == "Died", 0,
+  #                                      ifelse(situation168 == "Alive" & icudeath == "Survived", 1, 2)))
+
+  # df$d7_nonsurvivors <- factor(df$d7_nonsurvivors, levels=c(0, 1, 2), 
+  #                                   labels = c('Death before d7', 'Discharge before d7', 'Alive at d7')) 
+
+  df$d7_nonsurvivors <- factor(df$d7_nonsurvivors, levels=c('Death before d7', 'Discharge before d7', 'Alive at d7')) 
 
   df$gender <- factor(df$gender, level=c('Male',
                                         'Female'))
@@ -74,14 +107,6 @@ run_table1 <- function(cohort) {
                                                 "WHITE",
                                                 "ASIAN",
                                                 "OTHER"))
-
-  # 24 hours
-  df$resp_24  <- factor(df$resp_24,   levels=c("Abnormal","Normal"))
-  df$coag_24  <- factor(df$coag_24,   levels=c("Abnormal","Normal"))
-  df$cv_24    <- factor(df$cv_24,     levels=c("Abnormal","Normal"))
-  df$liver_24 <- factor(df$liver_24,  levels=c("Abnormal","Normal"))
-  df$renal_24 <- factor(df$renal_24,  levels=c("Abnormal","Normal"))
-  df$cns_24   <- factor(df$cns_24,    levels=c("Abnormal","Normal"))
 
   # Label variables
   label(df$charlson) <- "Charlson comorbidity index"
@@ -111,7 +136,8 @@ run_table1 <- function(cohort) {
             overall=T,
             #render.missing=NULL,
             topclass="Rtable1-grid Rtable1-shade Rtable1-times",
-            render.categorical=render.categorical, render.strat=render.strat
+            render.categorical=render.categorical, render.strat=render.strat,
+            render.continuous=c(.="Mean (SD)", .="Median (Q2, Q3)")
             )
 
   t1flex(t1) %>% save_as_docx(path=paste0("results/table_d7_nonsurvivors/", cohort, "_24.docx"))

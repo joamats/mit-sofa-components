@@ -204,6 +204,9 @@ df$situation168[ (difftime(df$dischtime, df$icu_intime, units = "secs")<604800|d
 
 # Keep only the patients who were alive more than 7 days and have information on ventilation
 final_d <- df[(df$situation168=="Alive"),]
+
+print(sum(is.na(final_d$resp_168)))
+
 final_df <- final_d[(!is.na(final_d$resp_168)),]
 #print(paste0("Patients removed with missing resp info: ", nrow(final_d) - nrow(final_df)))
 
